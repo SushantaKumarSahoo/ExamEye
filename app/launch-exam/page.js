@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function LaunchExam() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState('launching');
