@@ -18,14 +18,12 @@ export default function DownloadBrowser() {
 
   const handleDownload = (os) => {
     const downloads = {
-      windows: '/downloads/ExamEye-Secure-Browser-Setup.exe',
-      mac: '/downloads/ExamEye-Secure-Browser.dmg',
-      linux: '/downloads/ExamEye-Secure-Browser.AppImage'
+      windows: 'https://github.com/SushantaKumarSahoo/ExamEye/releases/download/First/ExamEye.Secure.Browser.Setup.1.0.0.exe',
+      mac: 'https://github.com/SushantaKumarSahoo/ExamEye/releases/download/First/ExamEye-Secure-Browser.dmg',
+      linux: 'https://github.com/SushantaKumarSahoo/ExamEye/releases/download/First/ExamEye-Secure-Browser.AppImage'
     };
     
-    // For now, show alert. You'll replace this with actual download links
-    alert(`Download link for ${os}: ${downloads[os]}\n\nPlease build the Electron app first using:\nnpm run build:${os === 'mac' ? 'mac' : os === 'linux' ? 'linux' : 'win'}`);
-    // window.location.href = downloads[os];
+    window.location.href = downloads[os];
   };
 
   return (
