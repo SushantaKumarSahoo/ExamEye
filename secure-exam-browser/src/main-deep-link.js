@@ -4,9 +4,9 @@ const url = require('url');
 
 // Configuration
 const APP_PROTOCOL = 'exameye';
-const PRODUCTION_URL = process.env.EXAMEYE_URL || 'https://exameye.vercel.app';
+const PRODUCTION_URL = process.env.EXAMEYE_URL || 'https://exameye-peach.vercel.app';
 const isDev = process.env.NODE_ENV === 'development';
-const BASE_URL = isDev ? 'http://localhost:3000' : PRODUCTION_URL;
+const BASE_URL = PRODUCTION_URL;
 
 let mainWindow = null;
 let deeplinkingUrl = null;

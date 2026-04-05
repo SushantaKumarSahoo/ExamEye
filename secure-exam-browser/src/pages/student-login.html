@@ -502,7 +502,7 @@
     </main>
 
     <script>
-        let examPlatformUrl = 'http://localhost:3000';
+        let examPlatformUrl = 'https://exameye-peach.vercel.app';
         let authToken = null;
 
         // Anti-cheating initialization
@@ -547,9 +547,9 @@
                     errorMessage += `1. Your Next.js server is not running\n`;
                     errorMessage += `2. Server is running on a different port\n\n`;
                     errorMessage += `To fix this:\n`;
-                    errorMessage += `1. Open terminal in your main project folder\n`;
-                    errorMessage += `2. Run: npm run dev\n`;
-                    errorMessage += `3. Make sure it says "Ready on http://localhost:3000"`;
+                    errorMessage += `1. Check your internet connection\n`;
+                    errorMessage += `2. Verify the platform is accessible at: https://exameye-peach.vercel.app\n`;
+                    errorMessage += `3. Contact your exam administrator if the issue persists`;
                 } else {
                     errorMessage += `Error details: ${error.message}`;
                 }

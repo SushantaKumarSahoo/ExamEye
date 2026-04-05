@@ -10,7 +10,7 @@ class MonitoringIntegration {
     this.examId = examId;
     this.token = token;
     this.isActive = false;
-    this.apiBaseUrl = process.env.API_URL || 'http://localhost:3000';
+    this.apiBaseUrl = process.env.API_URL || 'https://exameye-peach.vercel.app';
   }
 
   async start() {
