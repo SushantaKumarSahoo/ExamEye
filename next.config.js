@@ -2,6 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  // Disable static page generation for all pages
+  output: 'standalone',
+  experimental: {
+    // Force all pages to be dynamically rendered
+    isrMemoryCacheSize: 0,
+  },
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
