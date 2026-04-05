@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function GenerateAdminCode() {
   const [companies, setCompanies] = useState([]);
   const [formData, setFormData] = useState({
