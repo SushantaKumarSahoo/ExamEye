@@ -1,0 +1,85 @@
+{
+  "name": "exameye-secure-browser",
+  "version": "1.0.0",
+  "description": "ExamEye Secure Examination Browser with Advanced AI Security Features",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "set NODE_ENV=development && electron . --dev",
+    "safe": "set NODE_ENV=development && electron . --safe-mode",
+    "demo": "set NODE_ENV=development && electron . --demo",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "test": "mocha tests/advanced-features-test.js --timeout 60000",
+    "test:security": "mocha tests/advanced-features-test.js --grep \"Advanced Security Engine\"",
+    "test:neural": "mocha tests/advanced-features-test.js --grep \"Neural Proctoring\"",
+    "test:quantum": "mocha tests/advanced-features-test.js --grep \"Quantum Security\"",
+    "test:biometric": "mocha tests/advanced-features-test.js --grep \"Biometric Authentication\"",
+    "test:integration": "mocha tests/advanced-features-test.js --grep \"Advanced Integration\"",
+    "demo:biometric": "node tests/demo-scenarios.js biometric-profiling",
+    "demo:neural": "node tests/demo-scenarios.js neural-proctoring",
+    "demo:quantum": "node tests/demo-scenarios.js quantum-security",
+    "demo:auth": "node tests/demo-scenarios.js biometric-auth",
+    "demo:ai": "node tests/demo-scenarios.js ai-threat-detection",
+    "demo:full": "node tests/demo-scenarios.js full-integration",
+    "validate": "npm run test && npm run demo:full"
+  },
+  "keywords": ["exam", "browser", "secure", "lockdown", "anti-cheating", "exameye", "ai", "quantum", "biometric", "neural"],
+  "author": "ExamEye Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^32.2.5",
+    "electron-builder": "^25.1.8",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.10"
+  },
+  "dependencies": {
+    "node-machine-id": "^1.1.12",
+    "electron-store": "^8.1.0",
+    "natural": "^6.0.0",
+    "sentiment": "^5.0.2",
+    "ml-matrix": "^6.10.4"
+  },
+  "build": {
+    "appId": "com.exameye.securebrowser",
+    "productName": "ExamEye Secure Browser",
+    "protocols": {
+      "name": "exameye-protocol",
+      "schemes": ["exameye"]
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Education"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ExamEye Secure Browser"
+    }
+  }
+}

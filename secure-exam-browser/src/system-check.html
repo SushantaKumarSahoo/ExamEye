@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Check - ExamEye</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .progress-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .step-circle.active {
+      background: #10b981;
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      color: #6b7280;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .results-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .results-card h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .check-item {
+      padding: 1.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: all 0.3s;
+    }
+
+    .check-item.success {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .check-item.warning {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .check-item.error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .check-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.5rem;
+    }
+
+    .check-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .check-icon {
+      font-size: 1.5rem;
+    }
+
+    .check-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .check-message {
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+
+    .check-details {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .retry-btn {
+      padding: 0.5rem 1rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .retry-btn:hover {
+      background: #2563eb;
+    }
+
+    .camera-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .camera-preview h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    #cameraVideo {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 8px;
+      background: #000;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .camera-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .microphone-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .microphone-preview h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .audio-visualizer {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      height: 100px;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .audio-bar {
+      width: 20px;
+      height: 10px;
+      background: linear-gradient(to top, #10b981, #34d399);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.1s ease;
+    }
+
+    .audio-bar.active {
+      background: linear-gradient(to top, #059669, #10b981);
+    }
+
+    .audio-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 2px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .btn-disabled {
+      background: #d1d5db;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .help-card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .help-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .help-card ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .help-card li {
+      margin-bottom: 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .speed-bars {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .speed-bar {
+      margin-top: 0.5rem;
+    }
+
+    .speed-label {
+      font-size: 0.75rem;
+      color: #374151;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .speed-progress {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .speed-fill {
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    .inline-preview {
+      margin-top: 1rem;
+    }
+
+    .inline-audio-visualizer {
+      margin-top: 1rem;
+    }
+
+    .inline-audio-visualizer .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      height: 80px;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0fdf4 0%, #f9fafb 100%);
+      border-radius: 8px;
+      border: 2px solid #d1fae5;
+    }
+
+    .inline-audio-visualizer .audio-bar {
+      width: 20px;
+      min-height: 8px;
+      background: linear-gradient(to top, #10b981, #34d399);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.1s ease, background 0.2s ease;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .inline-audio-visualizer .audio-bar.active {
+      background: linear-gradient(to top, #059669, #10b981);
+      box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🔍 System Check</h1>
+      <p>Verifying your system is ready for the exam</p>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="progress-card">
+      <div class="progress-steps" id="progressSteps"></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="results-card">
+      <h2>System Check Results</h2>
+      <div id="checkResults"></div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goBackToLogin()">
+        ← Back to Login
+      </button>
+      <button class="btn btn-secondary" onclick="runChecksAgain()">
+        🔄 Run Checks Again
+      </button>
+      <button class="btn btn-disabled" id="proceedBtn" disabled>
+        ⏳ Checking...
+      </button>
+    </div>
+
+    <!-- Help Card -->
+    <div class="help-card">
+      <h3>💡 Troubleshooting Tips</h3>
+      <ul>
+        <li><strong>Camera/Microphone denied:</strong> Grant permissions when prompted</li>
+        <li><strong>Slow network:</strong> Close other applications using internet</li>
+        <li><strong>Browser not supported:</strong> Make sure you're using the ExamEye Secure Browser</li>
+        <li><strong>Fullscreen issues:</strong> Press F11 key or use fullscreen button</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="system-check.js"></script>
+</body>
+</html>

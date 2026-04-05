@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamEye Secure Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        input[type="url"]::placeholder, input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input[type="url"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 14px 30px;
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            min-width: 150px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .security-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .security-info h3 {
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+
+        .security-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .security-info li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .security-info li:before {
+            content: "🔒";
+            position: absolute;
+            left: 0;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .status.warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+        }
+
+        .machine-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .exam-controls {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .warning-banner {
+            background: rgba(255, 193, 7, 0.9);
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .activities-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 12px;
+            display: none;
+        }
+
+        .safe-mode-banner {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid #d35400;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+
+        .activity-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-time {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .activity-type {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .login-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .login-options .button {
+            flex: 1;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔒 ExamEye</div>
+        <div class="subtitle">Secure Online Exam Browser</div>
+        
+        <div class="safe-mode-banner" id="safeModeBanner" style="display: none;">
+            <strong>🛡️ SAFE MODE ACTIVE</strong><br>
+            Development mode enabled - Security restrictions relaxed<br>
+            <small>Emergency Exit: Ctrl+Shift+Q | Developer Tools: F12 | Triple Escape to quit</small>
+        </div>
+
+        <div class="warning-banner" id="warningBanner">
+            <strong>⚠️ Warning:</strong> <span id="warningMessage"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="examUrl">Exam Platform URL:</label>
+            <input type="url" id="examUrl" placeholder="http://localhost:3000" value="http://localhost:3000">
+        </div>
+
+        <div class="form-group">
+            <label for="studentId">Student ID (Optional):</label>
+            <input type="text" id="studentId" placeholder="Enter your student ID">
+        </div>
+
+        <div class="login-options">
+            <button class="button" onclick="goToStudentLogin()">🎓 Student Login</button>
+            <button class="button" onclick="goToAdminDashboard()">👨‍💼 Admin Dashboard</button>
+        </div>
+        
+        <button class="button" id="connectBtn" onclick="connectToExam()">Connect to Exam Platform (Direct)</button>
+        
+        <div class="exam-controls" id="examControls">
+            <button class="button" id="startExamBtn" onclick="startExamMode()">Start Secure Exam Mode</button>
+            <button class="button" id="endExamBtn" onclick="endExamMode()" style="background: linear-gradient(45deg, #ff4757, #ff3838);">End Exam Mode</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="machine-info" id="machineInfo">
+            <strong>Device Information:</strong><br>
+            Loading machine information...
+        </div>
+
+        <div class="activities-log" id="activitiesLog">
+            <strong>Security Log:</strong>
+            <div id="activitiesList"></div>
+        </div>
+
+        <div class="security-info">
+            <h3>🛡️ Security Features Active</h3>
+            <ul>
+                <li>Keyboard shortcuts disabled</li>
+                <li>Right-click context menu blocked</li>
+                <li>Developer tools access prevented</li>
+                <li>Window switching detection</li>
+                <li>Copy/paste operations monitored</li>
+                <li>Screen recording prevention</li>
+                <li>External navigation blocked</li>
+                <li>Download functionality disabled</li>
+                <li>Print functionality disabled</li>
+                <li>Fullscreen lockdown mode</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let examModeActive = false;
+        let machineInfo = null;
+        window.examModeActive = false;
+
+        // Load machine information on startup
+        async function loadMachineInfo() {
+            try {
+                machineInfo = await window.secureExamAPI.getMachineInfo();
+                document.getElementById('machineInfo').innerHTML = `
+                    <strong>Device Information:</strong><br>
+                    Machine ID: ${machineInfo.machineId}<br>
+                    Platform: ${machineInfo.platform}<br>
+                    Architecture: ${machineInfo.arch}<br>
+                    Screen: ${machineInfo.screenResolution.width}x${machineInfo.screenResolution.height}<br>
+                    Timestamp: ${new Date(machineInfo.timestamp).toLocaleString()}
+                `;
+            } catch (error) {
+                console.error('Failed to load machine info:', error);
+            }
+        }
+
+        // Connect to exam platform
+        async function connectToExam() {
+            const url = document.getElementById('examUrl').value;
+            const studentId = document.getElementById('studentId').value;
+            
+            if (!url) {
+                showStatus('Please enter a valid exam platform URL', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Connecting to exam platform...', 'warning');
+                const result = await window.secureExamAPI.navigateToExam(url);
+                
+                if (result.success) {
+                    showStatus('Connected successfully! You can now start exam mode.', 'success');
+                    document.getElementById('examControls').style.display = 'block';
+                } else {
+                    showStatus(`Connection failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Connection error: ${error.message}`, 'error');
+            }
+        }
+
+        // Start secure exam mode
+        async function startExamMode() {
+            try {
+                const examData = {
+                    studentId: document.getElementById('studentId').value,
+                    machineId: machineInfo?.machineId,
+                    startUrl: document.getElementById('examUrl').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                showStatus('Starting secure exam mode...', 'warning');
+                const result = await window.secureExamAPI.startExam(examData);
+                
+                if (result.success) {
+                    examModeActive = true;
+                    window.examModeActive = true;
+                    showStatus('Secure exam mode activated! Browser is now locked down.', 'success');
+                    document.getElementById('startExamBtn').disabled = true;
+                    document.getElementById('endExamBtn').disabled = false;
+                    document.getElementById('activitiesLog').style.display = 'block';
+                    
+                    // Start monitoring
+                    startActivityMonitoring();
+                } else {
+                    showStatus('Failed to start exam mode', 'error');
+                }
+            } catch (error) {
+                showStatus(`Error starting exam mode: ${error.message}`, 'error');
+            }
+        }
+
+        // End secure exam mode
+        async function endExamMode() {
+            try {
+                showStatus('Ending secure exam mode...', 'warning');
+                const result = await window.secureExamAPI.endExam();
+                
+                if (result.success) {
+                    examModeActive = false;
+                    window.examModeActive = false;
+                    showStatus(`Exam mode ended. Duration: ${Math.round(result.examDuration / 1000 / 60)} minutes. Suspicious activities: ${result.suspiciousActivities.length}`, 'success');
+                    document.getElementById('startExamBtn').disabled = false;
+                    document.getElementById('endExamBtn').disabled = true;
+                    
+                    // Display final report
+                    displayFinalReport(result);
+                } else {
+                    showStatus('Failed to end exam mode', 'error');
+                }
+            } catch (error) {
+                showStatus(`Error ending exam mode: ${error.message}`, 'error');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Show warning banner
+        function showWarning(warning) {
+            const banner = document.getElementById('warningBanner');
+            const message = document.getElementById('warningMessage');
+            message.textContent = warning.message;
+            banner.style.display = 'block';
+            
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 5000);
+        }
+
+        // Start activity monitoring
+        function startActivityMonitoring() {
+            // Listen for suspicious activities
+            window.secureExamAPI.onSuspiciousActivity((activity) => {
+                addActivityToLog(activity);
+            });
+
+            // Listen for warnings
+            window.secureExamAPI.onWarning((warning) => {
+                showWarning(warning);
+            });
+        }
+
+        // Add activity to log
+        function addActivityToLog(activity) {
+            const activitiesList = document.getElementById('activitiesList');
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <span class="activity-time">${new Date(activity.timestamp).toLocaleTimeString()}</span> - 
+                <span class="activity-type">${activity.type}</span>: ${activity.details}
+            `;
+            activitiesList.insertBefore(activityItem, activitiesList.firstChild);
+            
+            // Keep only last 20 activities
+            while (activitiesList.children.length > 20) {
+                activitiesList.removeChild(activitiesList.lastChild);
+            }
+        }
+
+        // Display final exam report
+        function displayFinalReport(result) {
+            const report = `
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    <h3>📊 Exam Session Report</h3>
+                    <p><strong>Duration:</strong> ${Math.round(result.examDuration / 1000 / 60)} minutes</p>
+                    <p><strong>Suspicious Activities:</strong> ${result.suspiciousActivities.length}</p>
+                    <p><strong>Status:</strong> Session completed successfully</p>
+                </div>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertAdjacentHTML('beforeend', report);
+        }
+
+        // Check if running in safe mode
+        function checkSafeMode() {
+            // Check if we're in development mode or safe mode
+            const isDev = window.location.href.includes('dev') || 
+                         navigator.userAgent.includes('Electron') ||
+                         process?.env?.NODE_ENV === 'development';
+            
+            if (isDev) {
+                document.getElementById('safeModeBanner').style.display = 'block';
+                showStatus('Safe Mode Active - Development/Testing Mode Enabled', 'warning');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSafeMode();
+            loadMachineInfo();
+            
+            // Check if already in exam mode
+            window.secureExamAPI.getExamStatus().then(status => {
+                if (status.isExamMode) {
+                    examModeActive = true;
+                    window.examModeActive = true;
+                    document.getElementById('startExamBtn').disabled = true;
+                    document.getElementById('endExamBtn').disabled = false;
+                    document.getElementById('activitiesLog').style.display = 'block';
+                    startActivityMonitoring();
+                }
+            });
+
+            // Auto-redirect for demo
+            autoRedirectToStudent();
+        });
+
+        // Navigation functions
+        function goToStudentLogin() {
+            window.location.href = './student-login.html';
+        }
+
+        function goToAdminDashboard() {
+            window.location.href = './admin-dashboard.html';
+        }
+
+        // Auto-redirect to student login for demo
+        function autoRedirectToStudent() {
+            setTimeout(() => {
+                if (confirm('Would you like to go directly to the Student Login to test the full functionality?')) {
+                    goToStudentLogin();
+                }
+            }, 3000);
+        }
+
+        // Handle Enter key in URL input
+        document.getElementById('examUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                connectToExam();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login - ExamEye Secure Browser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Exact styles from web project with anti-cheating enhancements */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Anti-cheating: Disable text selection */
+            -webkit-user-drag: none; /* Anti-cheating: Disable drag */
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f9ff 100%);
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .student-header {
+            background: rgba(249, 250, 251, 0.95);
+            color: #1f2937;
+            padding: 1.25rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #000000 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "👁️";
+            font-size: 1.5rem;
+            -webkit-text-fill-color: initial;
+        }
+
+        .student-background {
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+
+        .form-container {
+            max-width: 520px;
+            margin: 3rem auto;
+            padding: 3rem 2.5rem;
+            border: 1px solid rgba(229,231,235,0.6);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            backdrop-filter: blur(15px);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.95rem;
+            letter-spacing: -0.01em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.125rem 1.25rem;
+            border: 2px solid rgba(229,231,235,0.8);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1f2937;
+            box-shadow: 0 0 0 4px rgba(31,41,55,0.1);
+            transform: translateY(-1px);
+            background: #ffffff;
+        }
+
+        .form-input:hover {
+            border-color: rgba(107,114,128,0.8);
+            background: rgba(255,255,255,0.95);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: #ffffff;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(31,41,55,0.25);
+            padding: 1.125rem 2rem;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(31,41,55,0.35);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error::before {
+            content: "⚠️";
+        }
+
+        .success {
+            color: #059669;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success::before {
+            content: "✅";
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .loading::before {
+            content: "⏳";
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Anti-cheating styles */
+        ::selection {
+            background: transparent;
+        }
+
+        ::-moz-selection {
+            background: transparent;
+        }
+
+        /* Safe mode banner */
+        .safe-mode-banner {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #d35400;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .form-container {
+                margin: 2rem auto;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="student-background">
+    <header class="student-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">ExamEye Secure Browser</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container fade-in-up">
+            <div class="safe-mode-banner" id="safeModeBanner" style="display: none;">
+                🛡️ Safe Mode Active - Development Environment
+            </div>
+
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <div style="font-size: 4.5rem; margin-bottom: 1rem;">🎓</div>
+                <h2 style="margin-bottom: 0.75rem; color: #1f2937; font-size: 1.875rem; font-weight: 700;">
+                    Student Login
+                </h2>
+                <p style="color: #6b7280; font-size: 1.05rem; line-height: 1.6;">
+                    Welcome! Sign in to access your secure exam
+                </p>
+            </div>
+
+            <!-- System Check Button -->
+            <button
+                type="button"
+                onclick="openSystemCheck()"
+                class="btn"
+                style="
+                    width: 100%; 
+                    margin-bottom: 1rem;
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+                "
+            >
+                <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <span>🔍</span>
+                    Run System Check
+                </span>
+            </button>
+
+            <!-- AI Monitoring Test Button -->
+            <button
+                type="button"
+                onclick="openAITest()"
+                class="btn"
+                style="
+                    width: 100%; 
+                    margin-bottom: 1rem;
+                    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+                "
+            >
+                <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <span>🤖</span>
+                    Test AI Monitoring
+                </span>
+            </button>
+
+            <!-- WebRTC Test Button -->
+            <button
+                type="button"
+                onclick="startWebRTCTest()"
+                class="btn"
+                id="webrtcTestBtn"
+                style="
+                    width: 100%; 
+                    margin-bottom: 1.5rem;
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+                "
+            >
+                <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <span>🎥</span>
+                    Test WebRTC Streaming
+                </span>
+            </button>
+
+            <!-- WebRTC Status Display -->
+            <div id="webrtcStatus" style="display: none; margin-bottom: 1.5rem; padding: 1rem; border-radius: 12px; background: #f0fdf4; border: 2px solid #86efac;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <span id="webrtcStatusIcon">🟢</span>
+                    <span id="webrtcStatusText" style="font-weight: 600; color: #166534;">Initializing...</span>
+                </div>
+                <div id="webrtcInfo" style="font-size: 0.875rem; color: #15803d; line-height: 1.6;"></div>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span>👤</span>
+                            Username
+                        </span>
+                    </label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        class="form-input"
+                        placeholder="Enter your username"
+                        required
+                        autocomplete="username"
+                    />
+                    <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+                        Use the username provided in your exam credentials email
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔒</span>
+                            Password
+                        </span>
+                    </label>
+                    <div style="position: relative;">
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            class="form-input"
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                        />
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            style="
+                                position: absolute;
+                                right: 1rem;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                background: none;
+                                border: none;
+                                cursor: pointer;
+                                font-size: 1rem;
+                                color: #6b7280;
+                            "
+                        >
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            style="transform: scale(1.1);"
+                        />
+                        <span style="font-size: 0.9rem; color: #374151;">Remember me</span>
+                    </label>
+                    
+                    <a 
+                        href="#" 
+                        style="
+                            font-size: 0.9rem; 
+                            color: #6b7280; 
+                            text-decoration: none;
+                            transition: color 0.3s ease;
+                        "
+                        onmouseover="this.style.color='#000000'"
+                        onmouseout="this.style.color='#6b7280'"
+                        onclick="showForgotPasswordInfo()"
+                    >
+                        Forgot password?
+                    </a>
+                </div>
+
+                <div id="error" class="error" style="margin-bottom: 1rem; display: none;"></div>
+                <div id="success" class="success" style="margin-bottom: 1rem; display: none;"></div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    style="width: 100%; margin-bottom: 1rem;"
+                    id="loginBtn"
+                >
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>🚀</span>
+                        Sign In to Exam
+                    </span>
+                </button>
+            </form>
+
+            <!-- Exam Credentials Info -->
+            <div style="
+                padding: 1.25rem 1.5rem; 
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+                border: 2px solid #bae6fd; 
+                border-radius: 12px; 
+                margin-bottom: 1.5rem;
+            ">
+                <h4 style="font-size: 1rem; color: #0369a1; margin-bottom: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">🔑</span>
+                    Exam Credentials
+                </h4>
+                <p style="font-size: 0.875rem; color: #0c4a6e; margin-bottom: 0.75rem; line-height: 1.6;">
+                    Your exam administrator will provide you with:
+                </p>
+                <ul style="font-size: 0.875rem; color: #0c4a6e; padding-left: 1.5rem; margin: 0; line-height: 1.8;">
+                    <li>A unique username</li>
+                    <li>A temporary password</li>
+                    <li>These credentials are valid only for your assigned exam</li>
+                </ul>
+            </div>
+
+            <!-- Security Notice -->
+            <div style="text-align: center; padding: 1.75rem; background: #ffffff; border-radius: 12px; border: 2px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
+                <h4 style="color: #1f2937; font-size: 1rem; margin-bottom: 0.75rem; font-weight: 600;">
+                    Secure Exam Environment
+                </h4>
+                <p style="color: #6b7280; font-size: 0.875rem; line-height: 1.7; max-width: 400px; margin: 0 auto;">
+                    This browser is designed for secure exam taking. All activities are monitored to ensure exam integrity. 
+                    Please ensure you have a stable internet connection before starting your exam.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let examPlatformUrl = 'http://localhost:3000';
+        let authToken = null;
+
+        // Anti-cheating initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSafeMode();
+            setupPasswordToggle();
+            setupAntiCheatingMeasures();
+            setupFormHandling();
+            testBackendConnection();
+        });
+
+        async function testBackendConnection() {
+            try {
+                console.log('🔍 Testing backend connection to:', examPlatformUrl);
+                
+                const response = await fetch(`${examPlatformUrl}/api/auth/verify`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.status === 401 || response.ok) {
+                    // 401 is expected without token, means backend is running
+                    console.log('✅ Backend is running on', examPlatformUrl);
+                    showMessage(`Backend connected successfully (${examPlatformUrl})`, 'success');
+                    setTimeout(() => {
+                        document.getElementById('success').style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(`Unexpected status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('❌ Backend connection failed:', error);
+                
+                let errorMessage = `Cannot connect to backend server on ${examPlatformUrl}.\n\n`;
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage += `This usually means:\n`;
+                    errorMessage += `1. Your Next.js server is not running\n`;
+                    errorMessage += `2. Server is running on a different port\n\n`;
+                    errorMessage += `To fix this:\n`;
+                    errorMessage += `1. Open terminal in your main project folder\n`;
+                    errorMessage += `2. Run: npm run dev\n`;
+                    errorMessage += `3. Make sure it says "Ready on http://localhost:3000"`;
+                } else {
+                    errorMessage += `Error details: ${error.message}`;
+                }
+                
+                showError(errorMessage);
+            }
+        }
+
+        function checkSafeMode() {
+            const isDev = window.location.href.includes('dev') || 
+                         navigator.userAgent.includes('Electron');
+            
+            if (isDev) {
+                document.getElementById('safeModeBanner').style.display = 'block';
+            }
+        }
+
+        function setupPasswordToggle() {
+            const passwordField = document.getElementById('password');
+            const toggleButton = document.getElementById('togglePassword');
+
+            toggleButton.addEventListener('click', () => {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleButton.textContent = '🙈';
+                } else {
+                    passwordField.type = 'password';
+                    toggleButton.textContent = '👁️';
+                }
+            });
+        }
+
+        function setupAntiCheatingMeasures() {
+            // Disable right-click
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                logSecurityEvent('Right-click blocked', 'Attempted to open context menu');
+                return false;
+            });
+
+            // Disable text selection
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                logSecurityEvent('Text selection blocked', 'Attempted to select text');
+                return false;
+            });
+
+            // Disable drag and drop
+            document.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                logSecurityEvent('Drag operation blocked', 'Attempted drag and drop');
+                return false;
+            });
+
+            // Monitor keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                const blockedKeys = ['F12', 'F5', 'F11', 'PrintScreen'];
+                const blockedCombos = [
+                    { ctrl: true, key: 'u' }, // View source
+                    { ctrl: true, shift: true, key: 'i' }, // Dev tools
+                    { ctrl: true, shift: true, key: 'j' }, // Console
+                    { ctrl: true, shift: true, key: 'c' }, // Inspect
+                ];
+
+                if (blockedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    logSecurityEvent('Blocked key pressed', `Key: ${e.key}`);
+                    return false;
+                }
+
+                for (const combo of blockedCombos) {
+                    if (
+                        (combo.ctrl && e.ctrlKey) &&
+                        (combo.shift ? e.shiftKey : !e.shiftKey) &&
+                        e.key.toLowerCase() === combo.key.toLowerCase()
+                    ) {
+                        e.preventDefault();
+                        logSecurityEvent('Blocked key combination', `Combo: ${combo.ctrl ? 'Ctrl+' : ''}${combo.shift ? 'Shift+' : ''}${combo.key}`);
+                        return false;
+                    }
+                }
+            });
+
+            // Monitor window focus
+            window.addEventListener('blur', () => {
+                logSecurityEvent('Window focus lost', 'User switched away from login window');
+            });
+
+            // Monitor page visibility
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    logSecurityEvent('Tab switch detected', 'Page became hidden');
+                }
+            });
+        }
+
+        function setupFormHandling() {
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', handleLogin);
+
+            // Handle Enter key
+            document.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !document.getElementById('loginBtn').disabled) {
+                    e.preventDefault();
+                    handleLogin(e);
+                }
+            });
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            if (!username || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                showMessage('Connecting to exam platform...', 'info');
+
+                // Prepare login data
+                const loginData = {
+                    username: username,
+                    password: password
+                };
+
+                // Add browser info for security
+                loginData.browserInfo = await getBrowserInfo();
+
+                console.log('🔐 Login attempt:', {
+                    username: username,
+                    hasPassword: !!password,
+                    loginData: { ...loginData, password: '[HIDDEN]' }
+                });
+
+                const response = await fetch(`${examPlatformUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData),
+                });
+
+                const data = await response.json();
+                
+                console.log('🔐 Login response:', {
+                    status: response.status,
+                    ok: response.ok,
+                    message: data.message,
+                    hasUser: !!data.user,
+                    userRole: data.user?.role
+                });
+
+                if (response.ok) {
+                    if (data.user.role !== 'student' && data.user.role !== 'temp_student') {
+                        showError('This login is for students only. Please contact your administrator for access.');
+                        return;
+                    }
+
+                    // Store authentication data
+                    authToken = data.token;
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    
+                    showMessage('Authentication successful! Redirecting to dashboard...', 'success');
+                    
+                    logSecurityEvent('Login successful', `User: ${data.user.username || data.user.email}`);
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = './student-dashboard.html';
+                    }, 2000);
+                } else {
+                    showError(data.message || 'Authentication failed');
+                    logSecurityEvent('Login failed', `Reason: ${data.message}`);
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error. Please check your internet connection.');
+                logSecurityEvent('Login error', `Error: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function getBrowserInfo() {
+            try {
+                if (window.secureExamAPI) {
+                    return await window.secureExamAPI.getMachineInfo();
+                }
+            } catch (error) {
+                console.error('Failed to get browser info:', error);
+            }
+            
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                timestamp: new Date().toISOString(),
+                secureMode: true
+            };
+        }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+
+        function showMessage(message, type) {
+            const errorEl = document.getElementById('error');
+            const successEl = document.getElementById('success');
+            
+            // Hide both first
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            
+            if (type === 'error') {
+                errorEl.textContent = message;
+                errorEl.style.display = 'flex';
+            } else if (type === 'success') {
+                successEl.textContent = message;
+                successEl.style.display = 'flex';
+            } else if (type === 'info') {
+                successEl.textContent = message;
+                successEl.style.display = 'flex';
+            }
+            
+            // Auto-hide after 5 seconds
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    errorEl.style.display = 'none';
+                    successEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showLoading(show) {
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (show) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = `
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>⏳</span>
+                        Signing In...
+                    </span>
+                `;
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = `
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>🚀</span>
+                        Sign In to Exam
+                    </span>
+                `;
+            }
+        }
+
+        function logSecurityEvent(type, details) {
+            const event = {
+                timestamp: new Date().toISOString(),
+                type: type,
+                details: details,
+                page: 'student-login'
+            };
+            
+            console.warn('Security Event:', event);
+            
+            // Send to main process if available
+            if (window.secureExamAPI) {
+                // This would be handled by the security monitoring system
+            }
+        }
+
+        function showForgotPasswordInfo() {
+            alert('For password reset assistance, please contact your exam administrator or institution support.');
+        }
+
+        async function openAITest() {
+            try {
+                console.log('🤖 Opening AI monitoring test page...');
+                window.location.href = './ai-test.html';
+            } catch (error) {
+                console.error('Failed to navigate to AI test:', error);
+                showError('Failed to open AI test page. Please try again.');
+            }
+        }
+
+        // WebRTC Test Variables
+        let webrtcPeerConnection = null;
+        let webrtcLocalStream = null;
+        let webrtcPollingInterval = null;
+        const webrtcTestId = `electron-test-${Date.now()}`;
+        const webrtcStudentId = 'test-student-' + Math.random().toString(36).substr(2, 9);
+
+        async function startWebRTCTest() {
+            const btn = document.getElementById('webrtcTestBtn');
+            const statusDiv = document.getElementById('webrtcStatus');
+            
+            btn.disabled = true;
+            btn.innerHTML = `
+                <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <span>⏳</span>
+                    Starting...
+                </span>
+            `;
+            
+            statusDiv.style.display = 'block';
+            updateWebRTCStatus('🟡', 'Requesting camera access...', 'Please grant camera and microphone permissions when prompted.');
+            
+            try {
+                // Step 1: Get user media
+                console.log('📹 Requesting camera and microphone...');
+                webrtcLocalStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                });
+                
+                updateWebRTCStatus('🟢', 'Camera access granted', 'Setting up peer connection...');
+                console.log('✅ Media access granted');
+                
+                // Register student as available
+                await fetch(`${examPlatformUrl}/api/webrtc/available-students`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentId: webrtcStudentId,
+                        examId: webrtcTestId,
+                        action: 'register'
+                    })
+                });
+                console.log('✅ Student registered as available');
+                
+                // Step 2: Create peer connection
+                const configuration = {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                };
+                
+                webrtcPeerConnection = new RTCPeerConnection(configuration);
+                
+                // Add tracks
+                webrtcLocalStream.getTracks().forEach(track => {
+                    webrtcPeerConnection.addTrack(track, webrtcLocalStream);
+                });
+                console.log('✅ Tracks added to peer connection');
+                
+                // Set up event handlers
+                webrtcPeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        console.log('🧊 ICE candidate generated');
+                        sendWebRTCSignal('ice-candidate', event.candidate);
+                    }
+                };
+                
+                webrtcPeerConnection.onconnectionstatechange = () => {
+                    const state = webrtcPeerConnection.connectionState;
+                    console.log('📊 Connection state:', state);
+                    
+                    if (state === 'connected') {
+                        updateWebRTCStatus('🟢', 'Connected!', 
+                            `✅ Video streaming to admin!<br>` +
+                            `📡 Test ID: ${webrtcTestId}<br>` +
+                            `👤 Student ID: ${webrtcStudentId}<br>` +
+                            `🌐 Open browser at: <a href="${examPlatformUrl}/test-webrtc" target="_blank" style="color: #059669; text-decoration: underline;">${examPlatformUrl}/test-webrtc</a><br>` +
+                            `📝 Click "Start as Receiver" in browser to see this video`
+                        );
+                        btn.innerHTML = `
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <span>✅</span>
+                                Streaming Active
+                            </span>
+                        `;
+                        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    } else if (state === 'failed' || state === 'disconnected') {
+                        updateWebRTCStatus('🔴', 'Connection failed', 'Please try again or check if server is running.');
+                        btn.disabled = false;
+                        btn.innerHTML = `
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <span>🔄</span>
+                                Retry WebRTC Test
+                            </span>
+                        `;
+                    }
+                };
+                
+                // Step 3: Create and send offer
+                updateWebRTCStatus('🟡', 'Creating offer...', 'Establishing connection with server...');
+                const offer = await webrtcPeerConnection.createOffer();
+                await webrtcPeerConnection.setLocalDescription(offer);
+                console.log('✅ Offer created');
+                
+                // Step 4: Send offer to server
+                updateWebRTCStatus('🟡', 'Sending offer to server...', 'Waiting for admin to connect...');
+                await sendWebRTCSignal('offer', offer);
+                console.log('✅ Offer sent');
+                
+                // Step 5: Poll for answer
+                updateWebRTCStatus('🟡', 'Waiting for admin...', 
+                    `📡 Offer sent successfully!<br>` +
+                    `🌐 Admin should open: <a href="${examPlatformUrl}/admin-webrtc-viewer" target="_blank" style="color: #0369a1; text-decoration: underline;">${examPlatformUrl}/admin-webrtc-viewer</a><br>` +
+                    `📝 Click on your student card to connect<br>` +
+                    `⏳ Waiting for connection...<br>` +
+                    `<br>` +
+                    `📋 Your IDs:<br>` +
+                    `Student: ${webrtcStudentId}<br>` +
+                    `Exam: ${webrtcTestId}`
+                );
+                webrtcPollingInterval = setInterval(() => pollWebRTCSignals(), 1000);
+                
+                // Update button
+                btn.innerHTML = `
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>⏳</span>
+                        Waiting for Admin...
+                    </span>
+                `;
+                
+                // Timeout after 30 seconds
+                setTimeout(() => {
+                    if (webrtcPeerConnection && webrtcPeerConnection.connectionState !== 'connected') {
+                        updateWebRTCStatus('🟠', 'No admin connected', 
+                            `✅ Your camera is ready and offer sent!<br>` +
+                            `📡 Signaling server is working<br>` +
+                            `⚠️ No admin has connected yet<br>` +
+                            `🌐 Admin needs to open: <a href="${examPlatformUrl}/admin-webrtc-viewer" target="_blank" style="color: #0369a1; text-decoration: underline;">${examPlatformUrl}/admin-webrtc-viewer</a><br>` +
+                            `📝 And click on your student card<br>` +
+                            `<br>` +
+                            `📋 Your IDs:<br>` +
+                            `Student: ${webrtcStudentId}<br>` +
+                            `Exam: ${webrtcTestId}`
+                        );
+                        btn.innerHTML = `
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <span>🔄</span>
+                                Retry WebRTC Test
+                            </span>
+                        `;
+                        btn.disabled = false;
+                    }
+                }, 30000);
+                
+            } catch (error) {
+                console.error('WebRTC test error:', error);
+                updateWebRTCStatus('🔴', 'Test failed', `Error: ${error.message}`);
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>🔄</span>
+                        Retry WebRTC Test
+                    </span>
+                `;
+            }
+        }
+
+        async function sendWebRTCSignal(type, signal) {
+            try {
+                const response = await fetch(`${examPlatformUrl}/api/webrtc/signal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type,
+                        from: `student-${webrtcStudentId}`,
+                        to: `admin-${webrtcTestId}`,
+                        signal,
+                        examId: webrtcTestId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Signal send error:', error);
+                throw error;
+            }
+        }
+
+        async function pollWebRTCSignals() {
+            try {
+                const response = await fetch(
+                    `${examPlatformUrl}/api/webrtc/signal?userId=student-${webrtcStudentId}&examId=${webrtcTestId}`
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.signals && data.signals.length > 0) {
+                        for (const { type, signal } of data.signals) {
+                            console.log(`📥 Received ${type} from admin`);
+                            
+                            if (type === 'answer' && webrtcPeerConnection) {
+                                await webrtcPeerConnection.setRemoteDescription(
+                                    new RTCSessionDescription(signal)
+                                );
+                                console.log('✅ Answer processed');
+                            } else if (type === 'ice-candidate' && webrtcPeerConnection) {
+                                await webrtcPeerConnection.addIceCandidate(
+                                    new RTCIceCandidate(signal)
+                                );
+                                console.log('✅ ICE candidate added');
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+        }
+
+        function updateWebRTCStatus(icon, title, info) {
+            document.getElementById('webrtcStatusIcon').textContent = icon;
+            document.getElementById('webrtcStatusText').textContent = title;
+            document.getElementById('webrtcInfo').innerHTML = info;
+            
+            // Update background color based on status
+            const statusDiv = document.getElementById('webrtcStatus');
+            if (icon === '🟢') {
+                statusDiv.style.background = '#f0fdf4';
+                statusDiv.style.borderColor = '#86efac';
+                document.getElementById('webrtcStatusText').style.color = '#166534';
+                document.getElementById('webrtcInfo').style.color = '#15803d';
+            } else if (icon === '🟡') {
+                statusDiv.style.background = '#fffbeb';
+                statusDiv.style.borderColor = '#fcd34d';
+                document.getElementById('webrtcStatusText').style.color = '#92400e';
+                document.getElementById('webrtcInfo').style.color = '#b45309';
+            } else if (icon === '🟠') {
+                statusDiv.style.background = '#fff7ed';
+                statusDiv.style.borderColor = '#fdba74';
+                document.getElementById('webrtcStatusText').style.color = '#9a3412';
+                document.getElementById('webrtcInfo').style.color = '#c2410c';
+            } else if (icon === '🔴') {
+                statusDiv.style.background = '#fef2f2';
+                statusDiv.style.borderColor = '#fca5a5';
+                document.getElementById('webrtcStatusText').style.color = '#991b1b';
+                document.getElementById('webrtcInfo').style.color = '#dc2626';
+            }
+        }
+
+        function cleanupWebRTC() {
+            if (webrtcPollingInterval) {
+                clearInterval(webrtcPollingInterval);
+                webrtcPollingInterval = null;
+            }
+            
+            if (webrtcLocalStream) {
+                webrtcLocalStream.getTracks().forEach(track => track.stop());
+                webrtcLocalStream = null;
+            }
+            
+            if (webrtcPeerConnection) {
+                webrtcPeerConnection.close();
+                webrtcPeerConnection = null;
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            cleanupWebRTC();
+        });
+
+        async function openSystemCheck() {
+            try {
+                if (window.secureExamAPI && window.secureExamAPI.navigateToSystemCheck) {
+                    const result = await window.secureExamAPI.navigateToSystemCheck();
+                    console.log('Navigating to system check:', result);
+                } else {
+                    // Fallback for web browser testing
+                    window.location.href = '/system-check';
+                }
+            } catch (error) {
+                console.error('Failed to navigate to system check:', error);
+                showError('Failed to open system check. Please try again.');
+            }
+        }
+
+        // Listen for system check completion
+        if (window.secureExamAPI) {
+            if (window.secureExamAPI.onSystemCheckPassed) {
+                window.secureExamAPI.onSystemCheckPassed((results) => {
+                    console.log('System check passed:', results);
+                    showMessage('✅ System check passed! All requirements met. You can now login.', 'success');
+                });
+            }
+            
+            if (window.secureExamAPI.onSystemCheckFailed) {
+                window.secureExamAPI.onSystemCheckFailed((results) => {
+                    console.log('System check failed:', results);
+                    const failedChecks = Object.entries(results.checks)
+                        .filter(([key, check]) => check.status === 'error')
+                        .map(([key]) => key)
+                        .join(', ');
+                    showError(`⚠️ System check completed with issues: ${failedChecks}. Please fix and try again.`);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

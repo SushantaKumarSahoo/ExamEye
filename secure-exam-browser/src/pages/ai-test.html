@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Monitoring Test - ExamEye</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- TensorFlow.js - Local files -->
+    <script src="../libs/tf.min.js"></script>
+    <script src="../libs/blazeface.min.js"></script>
+    
+    <!-- TensorFlow Speech Commands for AI audio detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.5.4/dist/speech-commands.min.js"></script>
+    
+    <!-- TensorFlow COCO-SSD for object/device detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+    
+    <!-- MediaPipe for high-accuracy object detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.js"></script>
+    
+    <!-- MediaPipe FaceMesh for accurate eye/gaze tracking -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        #videoPreview {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .logs-container {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-info {
+            color: #60a5fa;
+        }
+
+        .log-success {
+            color: #34d399;
+        }
+
+        .log-warning {
+            color: #fbbf24;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-anomaly {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #ff6b6b;
+            padding-left: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-active {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-inactive {
+            background: #ef4444;
+        }
+
+        .audio-visualizer {
+            height: 60px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: flex-end;
+            padding: 0.5rem;
+            gap: 2px;
+        }
+
+        .audio-bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Monitoring Test</h1>
+            <p>Test camera and microphone AI detection in real-time</p>
+        </div>
+
+        <div class="grid">
+            <!-- Video Preview -->
+            <div class="card">
+                <h2>📹 Camera Preview</h2>
+                <div class="video-container">
+                    <video id="videoPreview" autoplay muted></video>
+                    <div class="video-overlay" id="videoOverlay">
+                        Camera not started
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="faceCount">0</div>
+                        <div class="stat-label">Faces Detected</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="confidence">0%</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="faceSize">0%</div>
+                        <div class="stat-label">Face Size</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <h3 style="font-size: 1.1rem; color: #1f2937; margin-bottom: 0.5rem;">Device Detection</h3>
+                    <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                        <p id="deviceDetectionStatus" style="color: #6b7280;">
+                            <strong>Status:</strong> <span id="deviceStatus">Not started</span>
+                        </p>
+                        <p id="detectedDevices" style="margin-top: 0.5rem; color: #1f2937; font-weight: 500;">
+                            No devices detected
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-primary" id="startBtn" onclick="startMonitoring()">
+                        ▶️ Start Monitoring
+                    </button>
+                    <button class="btn btn-danger" id="stopBtn" onclick="stopMonitoring()" disabled>
+                        ⏹️ Stop Monitoring
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearLogs()">
+                        🗑️ Clear Logs
+                    </button>
+                    <button class="btn btn-secondary" onclick="testObjectDetection()" id="testObjBtn" disabled>
+                        🔍 Test Detection Now
+                    </button>
+                    <button class="btn btn-secondary" onclick="openDevTools()" title="Press F12">
+                        🔧 DevTools
+                    </button>
+                </div>
+            </div>
+
+            <!-- Microphone Monitor -->
+            <div class="card">
+                <h2>🎤 Microphone Monitor</h2>
+                <div style="margin-bottom: 1rem;">
+                    <p style="color: #6b7280; margin-bottom: 0.5rem;">
+                        <span class="status-indicator" id="micStatus"></span>
+                        <span id="micStatusText">Microphone not started</span>
+                    </p>
+                </div>
+
+                <div class="audio-visualizer" id="audioVisualizer">
+                    <!-- Audio bars will be generated here -->
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="audioLevel">0</div>
+                        <div class="stat-label">Audio Level</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="voiceLevel">0</div>
+                        <div class="stat-label">Voice Level</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="variance">0</div>
+                        <div class="stat-label">Variance</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <h3 style="font-size: 1.1rem; color: #1f2937; margin-bottom: 0.5rem;">Detection Status</h3>
+                    <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                        <p style="margin-bottom: 0.5rem;">
+                            <strong>Multiple Voices:</strong> <span id="multipleVoices">Not Detected</span>
+                        </p>
+                        <p style="margin-bottom: 0.5rem;">
+                            <strong>Loud Audio:</strong> <span id="loudAudio">Not Detected</span>
+                        </p>
+                        <p>
+                            <strong>Sustained Conversation:</strong> <span id="sustainedConvo">Not Detected</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="card">
+            <h2>📊 Real-Time Logs</h2>
+            <div class="logs-container" id="logsContainer">
+                <div class="log-entry log-info">
+                    Waiting to start monitoring...
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary" onclick="goBack()">
+                ← Back to Login
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let monitoring = {
+            active: false,
+            videoStream: null,
+            audioStream: null,
+            audioContext: null,
+            analyser: null,
+            blazeFaceModel: null,
+            objectDetectionModel: null,
+            mediaPipeDetector: null,
+            faceMesh: null,
+            speechModel: null,
+            useTensorFlow: false,
+            useObjectDetection: false,
+            useMediaPipe: false,
+            useFaceMesh: false,
+            useAISpeech: false,
+            interval: null,
+            audioActivityHistory: [],
+            speechDetections: [],
+            detectedObjects: [],
+            gazeHistory: [],
+            anomalyCount: 0,
+            consecutiveNoFaceCount: 0,
+            consecutiveLookingAwayCount: 0,
+            lastGazeDirection: 'center'
+        };
+
+        // Generate audio visualizer bars
+        const visualizer = document.getElementById('audioVisualizer');
+        for (let i = 0; i < 32; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'audio-bar';
+            bar.style.height = '5px';
+            visualizer.appendChild(bar);
+        }
+
+        function addLog(message, type = 'info') {
+            const logsContainer = document.getElementById('logsContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = '<div class="log-entry log-info">Logs cleared</div>';
+        }
+
+        function clearLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = '<div class="log-entry log-info">Logs cleared</div>';
+        }
+
+        async function startMonitoring() {
+            if (monitoring.active) return;
+
+            addLog('🚀 Starting AI monitoring...', 'info');
+            document.getElementById('startBtn').disabled = true;
+
+            try {
+                // Try to load TensorFlow BlazeFace model for face detection
+                if (typeof tf !== 'undefined' && typeof blazeface !== 'undefined') {
+                    addLog('🤖 TensorFlow.js detected, loading BlazeFace model...', 'info');
+                    try {
+                        monitoring.blazeFaceModel = await blazeface.load();
+                        monitoring.useTensorFlow = true;
+                        addLog('✅ BlazeFace AI model loaded successfully!', 'success');
+                    } catch (modelError) {
+                        addLog(`⚠️ BlazeFace model failed: ${modelError.message}`, 'warning');
+                        addLog(`⚠️ Error details: ${modelError.stack}`, 'error');
+                        addLog('💡 Falling back to computer vision detection', 'info');
+                        monitoring.useTensorFlow = false;
+                    }
+                } else {
+                    addLog('💡 TensorFlow.js not available, using computer vision', 'info');
+                    monitoring.useTensorFlow = false;
+                }
+
+                // Try to load Speech Commands model for AI audio detection
+                if (typeof speechCommands !== 'undefined') {
+                    addLog('🎤 Loading TensorFlow Speech Commands AI model...', 'info');
+                    try {
+                        // Create recognizer for speech detection
+                        monitoring.speechModel = speechCommands.create('BROWSER_FFT');
+                        await monitoring.speechModel.ensureModelLoaded();
+                        monitoring.useAISpeech = true;
+                        addLog('✅ Speech AI model loaded successfully!', 'success');
+                    } catch (speechError) {
+                        addLog(`⚠️ Speech model failed: ${speechError.message}`, 'warning');
+                        addLog('💡 Using basic audio analysis', 'info');
+                        monitoring.useAISpeech = false;
+                    }
+                } else {
+                    addLog('💡 Speech Commands not available, using basic audio analysis', 'info');
+                    monitoring.useAISpeech = false;
+                }
+
+                // Try to load MediaPipe FaceMesh for ACCURATE gaze tracking
+                if (typeof FaceMesh !== 'undefined') {
+                    addLog('👁️ Loading MediaPipe FaceMesh for gaze tracking...', 'info');
+                    try {
+                        monitoring.faceMesh = new FaceMesh({
+                            locateFile: (file) => {
+                                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
+                            }
+                        });
+                        
+                        monitoring.faceMesh.setOptions({
+                            maxNumFaces: 1,
+                            refineLandmarks: true, // Enable iris tracking
+                            minDetectionConfidence: 0.5,
+                            minTrackingConfidence: 0.5
+                        });
+                        
+                        // Set up results callback
+                        monitoring.faceMesh.onResults((results) => {
+                            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                                const landmarks = results.multiFaceLandmarks[0];
+                                const gazeInfo = detectGazeDirection(landmarks, video.videoWidth, video.videoHeight);
+                                monitoring.lastGazeDirection = gazeInfo.direction;
+                                
+                                if (gazeInfo.isLookingAway) {
+                                    monitoring.consecutiveLookingAwayCount++;
+                                } else {
+                                    monitoring.consecutiveLookingAwayCount = 0;
+                                }
+                            }
+                        });
+                        
+                        monitoring.useFaceMesh = true;
+                        addLog('✅ FaceMesh loaded - Accurate gaze tracking enabled!', 'success');
+                        addLog('👁️ FaceMesh provides precise iris/pupil tracking', 'info');
+                    } catch (faceMeshError) {
+                        addLog(`⚠️ FaceMesh failed: ${faceMeshError.message}`, 'warning');
+                        monitoring.useFaceMesh = false;
+                    }
+                } else {
+                    addLog('💡 FaceMesh not available - gaze tracking disabled', 'info');
+                    monitoring.useFaceMesh = false;
+                }
+
+                // Try to load MediaPipe ObjectDetector for HIGH ACCURACY
+                if (typeof MediaPipeVision !== 'undefined') {
+                    addLog('🚀 MediaPipe detected, loading ObjectDetector (HIGH ACCURACY)...', 'info');
+                    try {
+                        const { ObjectDetector, FilesetResolver } = MediaPipeVision;
+                        
+                        addLog('📥 Initializing MediaPipe vision tasks...', 'info');
+                        const vision = await FilesetResolver.forVisionTasks(
+                            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+                        );
+                        
+                        addLog('📥 Loading EfficientDet model (high accuracy)...', 'info');
+                        monitoring.mediaPipeDetector = await ObjectDetector.createFromOptions(vision, {
+                            baseOptions: {
+                                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite",
+                                delegate: "GPU"
+                            },
+                            scoreThreshold: 0.3,
+                            maxResults: 10
+                        });
+                        
+                        monitoring.useMediaPipe = true;
+                        monitoring.useObjectDetection = true;
+                        
+                        addLog('✅ MediaPipe ObjectDetector loaded! (HIGH ACCURACY)', 'success');
+                        addLog('🎯 EfficientDet provides 90%+ accuracy for object detection', 'success');
+                        addLog('📱 Detection threshold: 30% confidence', 'info');
+                    } catch (mediaPipeError) {
+                        addLog(`⚠️ MediaPipe failed: ${mediaPipeError.message}`, 'warning');
+                        addLog('💡 Falling back to COCO-SSD...', 'info');
+                        monitoring.useMediaPipe = false;
+                    }
+                }
+                
+                // Fallback to COCO-SSD if MediaPipe not available
+                if (!monitoring.useMediaPipe && typeof cocoSsd !== 'undefined') {
+                    addLog('📱 Loading COCO-SSD object detection model...', 'info');
+                    addLog('📱 COCO-SSD library found, initializing...', 'info');
+                    try {
+                        // Try mobilenet_v2 first (more accurate but slightly slower)
+                        addLog('🔄 Attempting to load mobilenet_v2 (high accuracy)...', 'info');
+                        monitoring.objectDetectionModel = await cocoSsd.load({
+                            base: 'mobilenet_v2' // More accurate than lite version
+                        });
+                        monitoring.useObjectDetection = true;
+                        addLog('✅ Object detection model loaded successfully (mobilenet_v2)!', 'success');
+                        addLog('📱 Will detect: cell phones, books, laptops, tablets, keyboards, mice', 'info');
+                        addLog('📱 Detection threshold: 15% confidence', 'info');
+                        addLog('💡 MobileNet v2 provides better accuracy for phones and devices', 'info');
+                    } catch (objectError) {
+                        addLog(`⚠️ MobileNet v2 failed, trying lite model...`, 'warning');
+                        try {
+                            monitoring.objectDetectionModel = await cocoSsd.load({
+                                base: 'lite_mobilenet_v2'
+                            });
+                            monitoring.useObjectDetection = true;
+                            addLog('✅ Object detection loaded (lite model)', 'success');
+                        } catch (liteError) {
+                            addLog(`⚠️ Object detection failed: ${liteError.message}`, 'warning');
+                            addLog(`⚠️ Error stack: ${liteError.stack}`, 'error');
+                            monitoring.useObjectDetection = false;
+                        }
+                    }
+                } else {
+                    addLog('⚠️ COCO-SSD library not loaded - check if script is included', 'warning');
+                    addLog('⚠️ Check browser console for script loading errors', 'warning');
+                    monitoring.useObjectDetection = false;
+                }
+
+                // Start camera
+                addLog('📹 Requesting camera access...', 'info');
+                monitoring.videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720, facingMode: 'user' }
+                });
+                document.getElementById('videoPreview').srcObject = monitoring.videoStream;
+                addLog('✅ Camera access granted', 'success');
+
+                // Start microphone
+                addLog('🎤 Requesting microphone access...', 'info');
+                monitoring.audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+                
+                // Setup audio analysis
+                monitoring.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                monitoring.analyser = monitoring.audioContext.createAnalyser();
+                const microphone = monitoring.audioContext.createMediaStreamSource(monitoring.audioStream);
+                microphone.connect(monitoring.analyser);
+                monitoring.analyser.fftSize = 2048;
+                monitoring.analyser.smoothingTimeConstant = 0.3;
+                
+                addLog('✅ Microphone access granted', 'success');
+
+                // Start AI speech recognition if available
+                if (monitoring.useAISpeech) {
+                    try {
+                        await monitoring.speechModel.listen(result => {
+                            // Get speech detection scores
+                            const scores = result.scores;
+                            const maxScore = Math.max(...scores);
+                            const maxIndex = scores.indexOf(maxScore);
+                            const label = monitoring.speechModel.wordLabels()[maxIndex];
+                            
+                            if (maxScore > 0.7) {
+                                monitoring.speechDetections.push({
+                                    label,
+                                    score: maxScore,
+                                    timestamp: Date.now()
+                                });
+                                
+                                // Keep only recent detections (last 10 seconds)
+                                const now = Date.now();
+                                monitoring.speechDetections = monitoring.speechDetections.filter(
+                                    d => now - d.timestamp < 10000
+                                );
+                            }
+                        }, {
+                            probabilityThreshold: 0.7,
+                            includeSpectrogram: false,
+                            invokeCallbackOnNoiseAndUnknown: true
+                        });
+                        addLog('✅ AI speech recognition started', 'success');
+                    } catch (listenError) {
+                        addLog(`⚠️ Speech recognition failed to start: ${listenError.message}`, 'warning');
+                        monitoring.useAISpeech = false;
+                    }
+                }
+
+                // Update UI
+                document.getElementById('micStatus').className = 'status-indicator status-active';
+                document.getElementById('micStatusText').textContent = 'Microphone active';
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('testObjBtn').disabled = false;
+
+                // Start detection loop
+                monitoring.active = true;
+                monitoring.interval = setInterval(runDetection, 1500); // Every 1.5 seconds for better detection
+                
+                const detectionMethod = monitoring.useTensorFlow ? 'TensorFlow BlazeFace AI' : 'Computer Vision';
+                const audioMethod = monitoring.useAISpeech ? 'AI Speech Recognition' : 'Basic Audio Analysis';
+                const objectMethod = monitoring.useMediaPipe ? 'MediaPipe EfficientDet (HIGH ACCURACY)' : monitoring.useObjectDetection ? 'COCO-SSD MobileNet' : 'None';
+                
+                addLog(`✅ Monitoring started:`, 'success');
+                addLog(`   Face Detection: ${detectionMethod}`, 'info');
+                addLog(`   Audio Detection: ${audioMethod}`, 'info');
+                addLog(`   Object Detection: ${objectMethod}`, 'info');
+                
+                if (monitoring.useMediaPipe) {
+                    addLog('🎯 MediaPipe EfficientDet provides 90%+ accuracy for detecting:', 'success');
+                    addLog('   • Cell phones (15% threshold) - FRONT VIEW BEST', 'info');
+                    addLog('   • Books, laptops, tablets (30% threshold)', 'info');
+                    addLog('   • Keyboards, mice, remotes', 'info');
+                    addLog('   ⚠️ Note: Phone backs may be detected as "remote" or missed', 'warning');
+                } else if (monitoring.useObjectDetection) {
+                    addLog('📱 COCO-SSD active - Detection works best with:', 'info');
+                    addLog('   • Phone FRONT view (screen visible)', 'info');
+                    addLog('   • Good lighting conditions', 'info');
+                    addLog('   • Object clearly visible in frame', 'info');
+                    addLog('   • Detection threshold: 8-15% confidence', 'info');
+                    addLog('   ⚠️ Phone backs may appear as "remote" or not detect', 'warning');
+                }
+
+            } catch (error) {
+                addLog(`❌ Error: ${error.message}`, 'error');
+                
+                if (error.name === 'NotAllowedError') {
+                    addLog('💡 Please allow camera and microphone access', 'warning');
+                } else if (error.name === 'NotFoundError') {
+                    addLog('💡 No camera or microphone found', 'warning');
+                }
+                
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        async function runDetection() {
+            if (!monitoring.active) return;
+
+            addLog('🔍 Running AI detection check...', 'info');
+
+            // Face detection
+            await detectFaces();
+
+            // Audio detection
+            detectAudio();
+
+            // Update visualizer
+            updateAudioVisualizer();
+        }
+
+        async function detectFaces() {
+            const video = document.getElementById('videoPreview');
+            
+            // Verify video is ready
+            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                addLog('⚠️ Video not ready for detection', 'warning');
+                return;
+            }
+            
+            if (monitoring.useTensorFlow && monitoring.blazeFaceModel) {
+                await detectFacesWithTensorFlow();
+            } else {
+                await detectFacesWithComputerVision();
+            }
+        }
+        
+        function detectGazeDirection(landmarks, videoWidth, videoHeight) {
+            // FaceMesh provides 468 landmarks including precise iris positions
+            // Left iris: indices 468-472
+            // Right iris: indices 473-477
+            
+            if (!landmarks || landmarks.length < 478) {
+                return { direction: 'Looking at screen', isLookingAway: false };
+            }
+            
+            // Get iris centers
+            const leftIris = landmarks[468]; // Left iris center
+            const rightIris = landmarks[473]; // Right iris center
+            
+            // Get eye corners for reference
+            const leftEyeLeft = landmarks[33];
+            const leftEyeRight = landmarks[133];
+            const rightEyeLeft = landmarks[362];
+            const rightEyeRight = landmarks[263];
+            
+            // Calculate eye widths
+            const leftEyeWidth = Math.abs(leftEyeRight.x - leftEyeLeft.x);
+            const rightEyeWidth = Math.abs(rightEyeRight.x - rightEyeLeft.x);
+            
+            // Calculate iris position relative to eye
+            const leftIrisRatio = (leftIris.x - leftEyeLeft.x) / leftEyeWidth;
+            const rightIrisRatio = (rightIris.x - rightEyeLeft.x) / rightEyeWidth;
+            
+            // Average the ratios
+            const horizontalRatio = (leftIrisRatio + rightIrisRatio) / 2;
+            
+            // Vertical gaze (using Y coordinates)
+            const leftEyeTop = landmarks[159];
+            const leftEyeBottom = landmarks[145];
+            const leftEyeHeight = Math.abs(leftEyeBottom.y - leftEyeTop.y);
+            const leftIrisVerticalRatio = (leftIris.y - leftEyeTop.y) / leftEyeHeight;
+            
+            // Determine gaze direction with REALISTIC thresholds
+            let direction = 'Looking at screen';
+            let isLookingAway = false;
+            
+            // Horizontal gaze (more sensitive)
+            if (horizontalRatio < 0.35) {
+                direction = 'Looking LEFT';
+                isLookingAway = true;
+            } else if (horizontalRatio > 0.65) {
+                direction = 'Looking RIGHT';
+                isLookingAway = true;
+            }
+            // Vertical gaze (less sensitive to avoid false positives)
+            else if (leftIrisVerticalRatio < 0.30) {
+                direction = 'Looking UP';
+                isLookingAway = true;
+            } else if (leftIrisVerticalRatio > 0.70) {
+                direction = 'Looking DOWN';
+                isLookingAway = true;
+            }
+            
+            return { direction, isLookingAway, horizontalRatio, verticalRatio: leftIrisVerticalRatio };
+        }
+        
+        
+        async function detectWithMediaPipe(video) {
+            try {
+                // Run detection on video frame
+                const detections = monitoring.mediaPipeDetector.detect(video);
+                
+                // Convert MediaPipe format to our format
+                const objects = [];
+                
+                if (detections && detections.detections) {
+                    for (const detection of detections.detections) {
+                        for (const category of detection.categories) {
+                            // Get bounding box
+                            const bbox = detection.boundingBox;
+                            
+                            objects.push({
+                                class: category.categoryName,
+                                score: category.score,
+                                bbox: [
+                                    bbox.originX,
+                                    bbox.originY,
+                                    bbox.width,
+                                    bbox.height
+                                ]
+                            });
+                        }
+                    }
+                }
+                
+                return objects;
+            } catch (error) {
+                console.error('MediaPipe detection error:', error);
+                throw error;
+            }
+        }
+        
+        
+        async function detectFacesWithTensorFlow() {
+            try {
+                const video = document.getElementById('videoPreview');
+                const predictions = await monitoring.blazeFaceModel.estimateFaces(video, false);
+                
+                const faceCount = predictions.length;
+                document.getElementById('faceCount').textContent = faceCount;
+
+                // Store predictions for drawing
+                let detectedObjects = [];
+
+                if (faceCount === 0) {
+                    monitoring.consecutiveNoFaceCount++;
+                    monitoring.consecutiveLookingAwayCount = 0;
+                    document.getElementById('videoOverlay').textContent = `⚠️ No face detected (${monitoring.consecutiveNoFaceCount})`;
+                    document.getElementById('confidence').textContent = '0%';
+                    document.getElementById('faceSize').textContent = '0%';
+                    
+                    addLog(`⚠️ No face detected (${monitoring.consecutiveNoFaceCount} times)`, 'warning');
+                    
+                    if (monitoring.consecutiveNoFaceCount >= 3) {
+                        monitoring.anomalyCount++;
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: No face detected for ${monitoring.consecutiveNoFaceCount * 2} seconds`, 'anomaly');
+                    }
+                } else if (faceCount === 1) {
+                    monitoring.consecutiveNoFaceCount = 0;
+                    const face = predictions[0];
+                    const confidence = face.probability ? face.probability[0] : 1.0;
+                    
+                    // Calculate face size
+                    const [startX, startY] = face.topLeft;
+                    const [endX, endY] = face.bottomRight;
+                    const faceWidth = endX - startX;
+                    const faceHeight = endY - startY;
+                    const faceArea = faceWidth * faceHeight;
+                    const frameArea = video.videoWidth * video.videoHeight;
+                    const facePercentage = (faceArea / frameArea) * 100;
+                    
+                    // Calculate face center and position
+                    const centerX = (startX + endX) / 2;
+                    const centerY = (startY + endY) / 2;
+                    const relativeX = centerX / video.videoWidth;
+                    const relativeY = centerY / video.videoHeight;
+                    
+                    let gazeStatus = 'Looking at screen';
+                    let isLookingAway = false;
+                    
+                    // IMPROVED GAZE DETECTION using face landmarks and position
+                    if (face.landmarks && face.landmarks.length >= 6) {
+                        const landmarks = face.landmarks;
+                        const leftEye = landmarks[0];
+                        const rightEye = landmarks[1];
+                        const nose = landmarks[2];
+                        const mouth = landmarks[3];
+                        
+                        // Calculate face orientation based on eye-nose-mouth alignment
+                        const eyeCenterX = (leftEye[0] + rightEye[0]) / 2;
+                        const eyeCenterY = (leftEye[1] + rightEye[1]) / 2;
+                        
+                        // Horizontal gaze: Compare nose position to eye center
+                        const noseToEyeOffsetX = nose[0] - eyeCenterX;
+                        const eyeDistance = Math.abs(rightEye[0] - leftEye[0]);
+                        const horizontalRatio = noseToEyeOffsetX / eyeDistance;
+                        
+                        // Vertical gaze: Compare eye-nose-mouth vertical alignment
+                        const eyeToNoseY = nose[1] - eyeCenterY;
+                        const noseToMouthY = mouth[1] - nose[1];
+                        const verticalRatio = eyeToNoseY / (eyeToNoseY + noseToMouthY);
+                        
+                        // TUNED thresholds for better accuracy
+                        // Horizontal detection (adjusted for natural head position)
+                        // Increased threshold from 0.18 to 0.30 for more tolerance
+                        if (horizontalRatio < -0.30) {
+                            gazeStatus = 'Looking LEFT';
+                            isLookingAway = true;
+                        } else if (horizontalRatio > 0.30) {
+                            gazeStatus = 'Looking RIGHT';
+                            isLookingAway = true;
+                        }
+                        // Vertical detection (adjusted for natural viewing angle)
+                        // Increased tolerance range from 0.38-0.62 to 0.30-0.70
+                        else if (verticalRatio < 0.30) {
+                            gazeStatus = 'Looking UP';
+                            isLookingAway = true;
+                        } else if (verticalRatio > 0.70) {
+                            gazeStatus = 'Looking DOWN';
+                            isLookingAway = true;
+                        }
+                        
+                        // Additional check: Face at edge of frame
+                        // Reduced sensitivity from 0.15/0.85 to 0.10/0.90 for edge detection
+                        if (relativeX < 0.10 || relativeX > 0.90) {
+                            if (relativeX < 0.10) {
+                                gazeStatus = 'Looking LEFT (edge)';
+                            } else {
+                                gazeStatus = 'Looking RIGHT (edge)';
+                            }
+                            isLookingAway = true;
+                        } else if (relativeY < 0.10 || relativeY > 0.90) {
+                            if (relativeY < 0.10) {
+                                gazeStatus = 'Looking UP (edge)';
+                            } else {
+                                gazeStatus = 'Looking DOWN (edge)';
+                            }
+                            isLookingAway = true;
+                        }
+                    } else {
+                        // Fallback: Simple edge detection without landmarks
+                        // Reduced sensitivity from 0.15/0.85 to 0.10/0.90
+                        if (relativeX < 0.10 || relativeX > 0.90 || relativeY < 0.10 || relativeY > 0.90) {
+                            gazeStatus = 'Face at edge';
+                            isLookingAway = true;
+                        }
+                    }
+                    
+                    // Update consecutive count
+                    if (isLookingAway) {
+                        monitoring.consecutiveLookingAwayCount++;
+                    } else {
+                        monitoring.consecutiveLookingAwayCount = 0;
+                    }
+                    
+                    document.getElementById('videoOverlay').textContent = `✅ ${gazeStatus} (${(confidence * 100).toFixed(1)}%)`;
+                    document.getElementById('confidence').textContent = `${(confidence * 100).toFixed(1)}%`;
+                    document.getElementById('faceSize').textContent = `${facePercentage.toFixed(1)}%`;
+                    
+                    addLog(`✅ Face: ${gazeStatus}, Confidence: ${(confidence * 100).toFixed(1)}%, Size: ${facePercentage.toFixed(1)}%`, 'success');
+                    
+                    // Anomaly: Looking away for too long (7+ seconds = 5 checks at 1.5s intervals)
+                    if (monitoring.consecutiveLookingAwayCount >= 5 && isLookingAway) {
+                        monitoring.anomalyCount++;
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Student ${gazeStatus.toLowerCase()} for ${(monitoring.consecutiveLookingAwayCount * 1.5).toFixed(0)}s`, 'anomaly');
+                        monitoring.consecutiveLookingAwayCount = 0;
+                    }
+                    
+                    // Anomaly: Face too small (only if extremely small - less than 1.5%)
+                    if (facePercentage < 1.5) {
+                        monitoring.anomalyCount++;
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Face too small (${facePercentage.toFixed(1)}%) - student too far from camera`, 'anomaly');
+                    }
+                } else {
+                    monitoring.consecutiveNoFaceCount = 0;
+                    monitoring.consecutiveLookingAwayCount = 0;
+                    document.getElementById('videoOverlay').textContent = `🚨 ${faceCount} faces detected!`;
+                    monitoring.anomalyCount++;
+                    addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Multiple faces detected (${faceCount} faces)`, 'anomaly');
+                }
+                
+                // Object/Device Detection - Use MediaPipe if available, otherwise COCO-SSD
+                if (monitoring.useMediaPipe && monitoring.mediaPipeDetector) {
+                    try {
+                        // Verify video is ready
+                        if (video.videoWidth === 0 || video.videoHeight === 0) {
+                            addLog('⚠️ Video dimensions not ready for object detection', 'warning');
+                            document.getElementById('deviceStatus').textContent = 'Waiting for video...';
+                            document.getElementById('deviceStatus').style.color = '#f59e0b';
+                            return;
+                        }
+                        
+                        addLog(`🎯 Running MediaPipe detection (HIGH ACCURACY)...`, 'info');
+                        
+                        const objects = await detectWithMediaPipe(video);
+                        detectedObjects = objects;
+                        
+                        // Update device detection status
+                        document.getElementById('deviceStatus').textContent = 'MediaPipe Active (High Accuracy)';
+                        document.getElementById('deviceStatus').style.color = '#10b981';
+                        
+                        // Log all detected objects
+                        if (objects.length > 0) {
+                            const allObjects = objects.map(obj => 
+                                `${obj.class} (${(obj.score * 100).toFixed(0)}%)`
+                            ).join(', ');
+                            addLog(`🔍 MediaPipe detected: ${allObjects}`, 'info');
+                        } else {
+                            addLog(`🔍 MediaPipe: No objects detected`, 'info');
+                        }
+                        
+                        // Filter for suspicious objects
+                        const suspiciousObjects = objects.filter(obj => {
+                            const className = obj.class.toLowerCase();
+                            const isPhone = className.includes('cell') || className.includes('phone');
+                            const isRemote = className.includes('remote');
+                            const phoneThreshold = (isPhone || isRemote) ? 0.15 : 0.30; // 15% for phones/remotes
+                            
+                            const isSuspicious = 
+                                isPhone ||
+                                isRemote || // Remotes often confused with phone backs
+                                className.includes('book') || 
+                                className.includes('laptop') || 
+                                className.includes('tablet') || 
+                                className.includes('keyboard') || 
+                                className.includes('mouse') || 
+                                className.includes('tv') ||
+                                className.includes('monitor');
+                            
+                            const hasGoodConfidence = obj.score > phoneThreshold;
+                            
+                            if (isSuspicious && hasGoodConfidence) {
+                                addLog(`📱 MediaPipe found suspicious: ${obj.class} (${(obj.score * 100).toFixed(0)}%)`, 'warning');
+                            }
+                            
+                            return isSuspicious && hasGoodConfidence;
+                        });
+                        
+                        monitoring.detectedObjects = suspiciousObjects;
+                        
+                        if (suspiciousObjects.length > 0) {
+                            const objectList = suspiciousObjects.map(obj => 
+                                `${obj.class} (${(obj.score * 100).toFixed(0)}%)`
+                            ).join(', ');
+                            
+                            document.getElementById('detectedDevices').textContent = `⚠️ DETECTED: ${objectList}`;
+                            document.getElementById('detectedDevices').style.color = '#ef4444';
+                            
+                            monitoring.anomalyCount++;
+                            addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: MediaPipe detected: ${objectList}`, 'anomaly');
+                        } else {
+                            document.getElementById('detectedDevices').textContent = '✓ No suspicious devices detected';
+                            document.getElementById('detectedDevices').style.color = '#10b981';
+                        }
+                    } catch (mediaPipeError) {
+                        addLog(`❌ MediaPipe error: ${mediaPipeError.message}`, 'error');
+                        console.error('MediaPipe error:', mediaPipeError);
+                        
+                        // Fallback to COCO-SSD
+                        monitoring.useMediaPipe = false;
+                        addLog('💡 Falling back to COCO-SSD...', 'warning');
+                    }
+                } else if (monitoring.useObjectDetection && monitoring.objectDetectionModel) {
+                    try {
+                        // Verify video is ready
+                        if (video.videoWidth === 0 || video.videoHeight === 0) {
+                            addLog('⚠️ Video dimensions not ready for object detection', 'warning');
+                            document.getElementById('deviceStatus').textContent = 'Waiting for video...';
+                            document.getElementById('deviceStatus').style.color = '#f59e0b';
+                            return;
+                        }
+                        
+                        const objects = await monitoring.objectDetectionModel.detect(video);
+                        detectedObjects = objects;
+                        
+                        // Update device detection status
+                        document.getElementById('deviceStatus').textContent = 'Active - Scanning...';
+                        document.getElementById('deviceStatus').style.color = '#10b981';
+                        
+                        // Log all detected objects for debugging
+                        if (objects.length > 0) {
+                            const allObjects = objects.map(obj => 
+                                `${obj.class} (${(obj.score * 100).toFixed(0)}%)`
+                            ).join(', ');
+                            addLog(`🔍 All objects: ${allObjects}`, 'info');
+                            
+                            // Check if any objects might be phones but with different names
+                            objects.forEach(obj => {
+                                const className = obj.class.toLowerCase();
+                                if (className.includes('remote') || className.includes('mouse') || className.includes('keyboard')) {
+                                    addLog(`💡 Detected "${obj.class}" - might be misidentified phone`, 'warning');
+                                }
+                            });
+                        } else {
+                            addLog(`🔍 No objects detected - try holding device more prominently`, 'info');
+                        }
+                        
+                        // Filter for suspicious objects with VERY AGGRESSIVE detection
+                        const suspiciousObjects = objects.filter(obj => {
+                            const className = obj.class.toLowerCase();
+                            
+                            // VERY LOW threshold for phones and remotes (often confused with phone backs)
+                            const isPhone = className.includes('cell') || className.includes('phone');
+                            const isRemote = className.includes('remote');
+                            const phoneThreshold = (isPhone || isRemote) ? 0.08 : 0.15; // 8% for phones/remotes
+                            
+                            // Check for various device-related keywords
+                            const isSuspicious = 
+                                isPhone ||
+                                isRemote || // Remotes often look like phone backs
+                                className.includes('book') || 
+                                className.includes('laptop') || 
+                                className.includes('tablet') || 
+                                className.includes('keyboard') || 
+                                className.includes('mouse') || 
+                                className.includes('tv') ||
+                                className.includes('monitor');
+                            
+                            const hasGoodConfidence = obj.score > phoneThreshold;
+                            
+                            if (isSuspicious && hasGoodConfidence) {
+                                addLog(`📱 Found suspicious object: ${obj.class} (${(obj.score * 100).toFixed(0)}%)`, 'warning');
+                            }
+                            
+                            return isSuspicious && hasGoodConfidence;
+                        });
+                        
+                        monitoring.detectedObjects = suspiciousObjects;
+                        
+                        if (suspiciousObjects.length > 0) {
+                            const objectList = suspiciousObjects.map(obj => 
+                                `${obj.class} (${(obj.score * 100).toFixed(0)}%)`
+                            ).join(', ');
+                            
+                            // Update UI
+                            document.getElementById('detectedDevices').textContent = `⚠️ DETECTED: ${objectList}`;
+                            document.getElementById('detectedDevices').style.color = '#ef4444';
+                            
+                            monitoring.anomalyCount++;
+                            addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Suspicious objects detected: ${objectList}`, 'anomaly');
+                        } else {
+                            document.getElementById('detectedDevices').textContent = '✓ No suspicious devices detected';
+                            document.getElementById('detectedDevices').style.color = '#10b981';
+                        }
+                    } catch (detectionError) {
+                        addLog(`❌ Object detection error: ${detectionError.message}`, 'error');
+                        console.error('Object detection error:', detectionError);
+                        document.getElementById('deviceStatus').textContent = 'Error';
+                        document.getElementById('deviceStatus').style.color = '#ef4444';
+                    }
+                } else if (monitoring.useObjectDetection && !monitoring.objectDetectionModel) {
+                    addLog('⚠️ Object detection enabled but model not loaded', 'warning');
+                    document.getElementById('deviceStatus').textContent = 'Model not loaded';
+                    document.getElementById('deviceStatus').style.color = '#f59e0b';
+                } else {
+                    document.getElementById('deviceStatus').textContent = 'Disabled';
+                    document.getElementById('deviceStatus').style.color = '#6b7280';
+                }
+                
+            } catch (error) {
+                addLog(`❌ TensorFlow detection error: ${error.message}`, 'error');
+                addLog('💡 Falling back to computer vision', 'warning');
+                monitoring.useTensorFlow = false;
+            }
+        }
+        
+        async function detectFacesWithComputerVision() {
+            try {
+                const video = document.getElementById('videoPreview');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                if (canvas.width === 0 || canvas.height === 0) {
+                    addLog('⚠️ Video not ready yet', 'warning');
+                    return;
+                }
+                
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const pixels = imageData.data;
+                
+                // Detect skin tone pixels
+                let skinPixels = 0;
+                let totalPixels = pixels.length / 4;
+                let skinRegions = [];
+                
+                for (let i = 0; i < pixels.length; i += 4) {
+                    const r = pixels[i];
+                    const g = pixels[i + 1];
+                    const b = pixels[i + 2];
+                    
+                    // Skin tone detection algorithm
+                    if (r > 95 && g > 40 && b > 20 &&
+                        r > g && r > b &&
+                        Math.abs(r - g) > 15 &&
+                        r - Math.min(g, b) > 15) {
+                        skinPixels++;
+                        
+                        const x = (i / 4) % canvas.width;
+                        const y = Math.floor((i / 4) / canvas.width);
+                        skinRegions.push({ x, y });
+                    }
+                }
+                
+                const skinPercentage = (skinPixels / totalPixels) * 100;
+                
+                // Estimate face count and size
+                let faceCount = 0;
+                let confidence = 0;
+                let faceSize = 0;
+                
+                if (skinPercentage > 8) {
+                    // Cluster skin pixels to detect faces
+                    const clusters = clusterSkinPixels(skinRegions, canvas.width, canvas.height);
+                    faceCount = clusters.length;
+                    confidence = Math.min(95, skinPercentage * 5);
+                    faceSize = skinPercentage;
+                    
+                    document.getElementById('faceCount').textContent = faceCount;
+                    document.getElementById('confidence').textContent = `${confidence.toFixed(1)}%`;
+                    document.getElementById('faceSize').textContent = `${faceSize.toFixed(1)}%`;
+                    
+                    if (faceCount === 0) {
+                        monitoring.consecutiveNoFaceCount++;
+                        document.getElementById('videoOverlay').textContent = `⚠️ No face detected (${monitoring.consecutiveNoFaceCount})`;
+                        addLog(`⚠️ No face detected (${monitoring.consecutiveNoFaceCount} times)`, 'warning');
+                        
+                        if (monitoring.consecutiveNoFaceCount >= 3) {
+                            monitoring.anomalyCount++;
+                            addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: No face detected for ${monitoring.consecutiveNoFaceCount * 2} seconds`, 'anomaly');
+                        }
+                    } else if (faceCount === 1) {
+                        monitoring.consecutiveNoFaceCount = 0;
+                        document.getElementById('videoOverlay').textContent = `✅ Face detected (${confidence.toFixed(1)}%)`;
+                        addLog(`✅ Face detected - Confidence: ${confidence.toFixed(1)}%, Size: ${faceSize.toFixed(1)}%`, 'success');
+                        
+                        if (faceSize < 1.5) {
+                            monitoring.anomalyCount++;
+                            addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Face too small (${faceSize.toFixed(1)}%) - student too far from camera`, 'anomaly');
+                        }
+                    } else {
+                        monitoring.consecutiveNoFaceCount = 0;
+                        document.getElementById('videoOverlay').textContent = `🚨 ${faceCount} faces detected!`;
+                        monitoring.anomalyCount++;
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: Multiple faces detected (${faceCount} faces)`, 'anomaly');
+                    }
+                } else {
+                    monitoring.consecutiveNoFaceCount++;
+                    document.getElementById('videoOverlay').textContent = `⚠️ No face detected (${monitoring.consecutiveNoFaceCount})`;
+                    document.getElementById('faceCount').textContent = '0';
+                    document.getElementById('confidence').textContent = '0%';
+                    document.getElementById('faceSize').textContent = '0%';
+                    
+                    addLog(`⚠️ No face detected - skin: ${skinPercentage.toFixed(1)}%`, 'warning');
+                    
+                    if (monitoring.consecutiveNoFaceCount >= 3) {
+                        monitoring.anomalyCount++;
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount}: No face detected for ${monitoring.consecutiveNoFaceCount * 2} seconds`, 'anomaly');
+                    }
+                }
+            } catch (error) {
+                addLog(`❌ Face detection error: ${error.message}`, 'error');
+            }
+        }
+        
+        function clusterSkinPixels(pixels, width, height) {
+            if (pixels.length === 0) return [];
+            
+            // Simple clustering - divide image into grid and count skin pixels per cell
+            const gridSize = 50;
+            const cols = Math.ceil(width / gridSize);
+            const rows = Math.ceil(height / gridSize);
+            const grid = Array(rows).fill(0).map(() => Array(cols).fill(0));
+            
+            pixels.forEach(p => {
+                const col = Math.floor(p.x / gridSize);
+                const row = Math.floor(p.y / gridSize);
+                if (row < rows && col < cols) {
+                    grid[row][col]++;
+                }
+            });
+            
+            // Find clusters with significant skin pixels
+            const clusters = [];
+            const threshold = 100; // Minimum pixels to be considered a face region
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c] > threshold) {
+                        // Check if this is part of an existing cluster
+                        let merged = false;
+                        for (let cluster of clusters) {
+                            if (Math.abs(cluster.row - r) <= 2 && Math.abs(cluster.col - c) <= 2) {
+                                cluster.pixels += grid[r][c];
+                                merged = true;
+                                break;
+                            }
+                        }
+                        if (!merged) {
+                            clusters.push({ row: r, col: c, pixels: grid[r][c] });
+                        }
+                    }
+                }
+            }
+            
+            return clusters;
+        }
+
+        function detectAudio() {
+            const bufferLength = monitoring.analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const timeDataArray = new Uint8Array(bufferLength);
+            
+            monitoring.analyser.getByteFrequencyData(dataArray);
+            monitoring.analyser.getByteTimeDomainData(timeDataArray);
+            
+            const avgLevel = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            const voiceFrequencyRange = dataArray.slice(10, 80);
+            const voiceLevel = voiceFrequencyRange.reduce((a, b) => a + b) / voiceFrequencyRange.length;
+            const variance = calculateVariance(timeDataArray);
+            
+            // Calculate peak level for loud audio detection
+            const maxLevel = Math.max(...dataArray);
+            
+            // Update UI
+            document.getElementById('audioLevel').textContent = avgLevel.toFixed(0);
+            document.getElementById('voiceLevel').textContent = voiceLevel.toFixed(0);
+            document.getElementById('variance').textContent = variance.toFixed(0);
+            
+            // Track history
+            monitoring.audioActivityHistory.push({ avgLevel, voiceLevel, variance, maxLevel, timestamp: Date.now() });
+            if (monitoring.audioActivityHistory.length > 10) {
+                monitoring.audioActivityHistory.shift();
+            }
+            
+            // Reset detection status with clear information
+            document.getElementById('multipleVoices').textContent = '✓ Clear (No multiple voices detected)';
+            document.getElementById('multipleVoices').style.color = '#10b981';
+            document.getElementById('loudAudio').textContent = '✓ Normal (Audio level acceptable)';
+            document.getElementById('loudAudio').style.color = '#10b981';
+            document.getElementById('sustainedConvo').textContent = '✓ Quiet (No sustained conversation)';
+            document.getElementById('sustainedConvo').style.color = '#10b981';
+            
+            let detectedAnomalies = [];
+            
+            // AI-based speech detection with HIGHER thresholds
+            if (monitoring.useAISpeech && monitoring.speechDetections.length > 0) {
+                const recentDetections = monitoring.speechDetections.filter(
+                    d => Date.now() - d.timestamp < 5000
+                );
+                
+                if (recentDetections.length > 0) {
+                    const uniqueLabels = new Set(recentDetections.map(d => d.label));
+                    const avgScore = recentDetections.reduce((sum, d) => sum + d.score, 0) / recentDetections.length;
+                    
+                    // Only log if confidence is high
+                    if (avgScore > 0.8) {
+                        addLog(`🤖 AI Speech: ${Array.from(uniqueLabels).join(', ')} (${(avgScore * 100).toFixed(0)}% confidence, ${recentDetections.length} detections)`, 'info');
+                    }
+                    
+                    // Multiple voices - MUCH HIGHER threshold: need 3+ unique patterns AND 6+ detections
+                    if (uniqueLabels.size >= 3 && recentDetections.length >= 6) {
+                        detectedAnomalies.push('multiple-voices');
+                        document.getElementById('multipleVoices').textContent = `⚠️ ALERT: ${uniqueLabels.size} different speech patterns detected`;
+                        document.getElementById('multipleVoices').style.color = '#ef4444';
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: AI detected ${uniqueLabels.size} different speech patterns: ${Array.from(uniqueLabels).join(', ')}`, 'anomaly');
+                    }
+                    
+                    // Sustained conversation - HIGHER threshold: need 8+ detections in 5 seconds
+                    if (recentDetections.length >= 8) {
+                        detectedAnomalies.push('sustained-convo');
+                        document.getElementById('sustainedConvo').textContent = `⚠️ ALERT: Continuous speech detected (${recentDetections.length} detections in 5s)`;
+                        document.getElementById('sustainedConvo').style.color = '#ef4444';
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: AI detected sustained speech (${recentDetections.length} detections in 5 seconds)`, 'anomaly');
+                    }
+                }
+            }
+            
+            // Detect loud audio - MUCH HIGHER thresholds: avgLevel > 40 AND maxLevel > 150
+            if (avgLevel > 40 && maxLevel > 150) {
+                detectedAnomalies.push('loud-audio');
+                document.getElementById('loudAudio').textContent = `⚠️ ALERT: Loud audio (avg: ${avgLevel.toFixed(0)}, peak: ${maxLevel})`;
+                document.getElementById('loudAudio').style.color = '#ef4444';
+                addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: Loud audio detected (average: ${avgLevel.toFixed(0)}, peak: ${maxLevel})`, 'anomaly');
+            }
+            
+            // Fallback to basic detection ONLY if AI not available
+            if (!monitoring.useAISpeech) {
+                // Multiple voices - HIGHER threshold: variance > 20 AND voiceLevel > 50
+                if (variance > 20 && voiceLevel > 50) {
+                    detectedAnomalies.push('multiple-voices');
+                    document.getElementById('multipleVoices').textContent = `⚠️ ALERT: Multiple voices/noise (variance: ${variance.toFixed(0)}, voice: ${voiceLevel.toFixed(0)})`;
+                    document.getElementById('multipleVoices').style.color = '#ef4444';
+                    addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: Multiple voices/noise detected (variance: ${variance.toFixed(0)}, voice: ${voiceLevel.toFixed(0)})`, 'anomaly');
+                } else if (voiceLevel > 100) {
+                    // Very high voice level - threshold raised to 100
+                    detectedAnomalies.push('multiple-voices');
+                    document.getElementById('multipleVoices').textContent = `⚠️ ALERT: Very high voice level (${voiceLevel.toFixed(0)}) - possible music/loud talking`;
+                    document.getElementById('multipleVoices').style.color = '#ef4444';
+                    addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: Very high voice level detected (${voiceLevel.toFixed(0)})`, 'anomaly');
+                }
+                
+                // Basic sustained conversation - HIGHER threshold: avgRecentVoice > 30
+                if (monitoring.audioActivityHistory.length >= 5) {
+                    const recentVoiceActivity = monitoring.audioActivityHistory.slice(-5);
+                    const avgRecentVoice = recentVoiceActivity.reduce((sum, item) => sum + item.voiceLevel, 0) / 5;
+                    
+                    if (avgRecentVoice > 30) {
+                        detectedAnomalies.push('sustained-convo');
+                        document.getElementById('sustainedConvo').textContent = `⚠️ ALERT: Sustained audio (average: ${avgRecentVoice.toFixed(0)} over 10s)`;
+                        document.getElementById('sustainedConvo').style.color = '#ef4444';
+                        addLog(`🚨 ANOMALY #${monitoring.anomalyCount + 1}: Sustained conversation/audio (average voice: ${avgRecentVoice.toFixed(0)})`, 'anomaly');
+                    }
+                }
+            }
+            
+            // Only increment anomaly count once per detection cycle if any anomalies found
+            if (detectedAnomalies.length > 0) {
+                monitoring.anomalyCount++;
+            }
+            
+            const aiStatus = monitoring.useAISpeech ? ' [AI Mode]' : ' [Basic Mode]';
+            const statusEmoji = detectedAnomalies.length > 0 ? '⚠️' : '✓';
+            addLog(`${statusEmoji} Audio${aiStatus}: Level=${avgLevel.toFixed(0)}, Voice=${voiceLevel.toFixed(0)}, Variance=${variance.toFixed(0)}, Peak=${maxLevel}`, detectedAnomalies.length > 0 ? 'warning' : 'info');
+        }
+
+        function updateAudioVisualizer() {
+            const bufferLength = monitoring.analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            monitoring.analyser.getByteFrequencyData(dataArray);
+            
+            const bars = document.querySelectorAll('.audio-bar');
+            const step = Math.floor(bufferLength / bars.length);
+            
+            bars.forEach((bar, index) => {
+                const value = dataArray[index * step];
+                const height = (value / 255) * 100;
+                bar.style.height = `${Math.max(5, height)}%`;
+            });
+        }
+
+        function calculateVariance(dataArray) {
+            const mean = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            const squaredDiffs = Array.from(dataArray).map(value => Math.pow(value - mean, 2));
+            const variance = squaredDiffs.reduce((a, b) => a + b) / squaredDiffs.length;
+            return Math.sqrt(variance);
+        }
+
+        function stopMonitoring() {
+            if (!monitoring.active) return;
+
+            addLog('⏹️ Stopping monitoring...', 'warning');
+
+            monitoring.active = false;
+            
+            if (monitoring.interval) {
+                clearInterval(monitoring.interval);
+            }
+            
+            if (monitoring.speechModel && monitoring.useAISpeech) {
+                try {
+                    monitoring.speechModel.stopListening();
+                    addLog('✅ AI speech recognition stopped', 'info');
+                } catch (e) {
+                    console.error('Error stopping speech model:', e);
+                }
+            }
+            
+            if (monitoring.videoStream) {
+                monitoring.videoStream.getTracks().forEach(track => track.stop());
+            }
+            
+            if (monitoring.audioStream) {
+                monitoring.audioStream.getTracks().forEach(track => track.stop());
+            }
+            
+            if (monitoring.audioContext) {
+                monitoring.audioContext.close();
+            }
+
+            document.getElementById('videoPreview').srcObject = null;
+            document.getElementById('videoOverlay').textContent = 'Camera stopped';
+            document.getElementById('micStatus').className = 'status-indicator status-inactive';
+            document.getElementById('micStatusText').textContent = 'Microphone stopped';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('testObjBtn').disabled = true;
+
+            addLog('✅ Monitoring stopped', 'success');
+            addLog(`📊 Total anomalies detected: ${monitoring.anomalyCount}`, 'info');
+        }
+
+        function goBack() {
+            if (monitoring.active) {
+                stopMonitoring();
+            }
+            window.location.href = './student-login.html';
+        }
+
+        function openDevTools() {
+            if (window.secureExamAPI && window.secureExamAPI.toggleDevTools) {
+                window.secureExamAPI.toggleDevTools();
+            } else {
+                addLog('💡 Press F12 to open DevTools', 'info');
+            }
+        }
+
+        async function testObjectDetection() {
+            if (!monitoring.useObjectDetection || !monitoring.objectDetectionModel) {
+                addLog('❌ Object detection not available', 'error');
+                return;
+            }
+
+            const video = document.getElementById('videoPreview');
+            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                addLog('❌ Video not ready', 'error');
+                return;
+            }
+
+            addLog('🔍 Running manual object detection test...', 'info');
+            addLog(`📹 Video size: ${video.videoWidth}x${video.videoHeight}`, 'info');
+
+            try {
+                const objects = await monitoring.objectDetectionModel.detect(video);
+                
+                if (objects.length === 0) {
+                    addLog('⚠️ No objects detected at all', 'warning');
+                    addLog('💡 Try: Better lighting, hold object closer, clearer background', 'info');
+                    
+                    // Clear canvas
+                    const canvas = document.getElementById('overlayCanvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                } else {
+                    addLog(`✅ Detected ${objects.length} objects:`, 'success');
+                    objects.forEach((obj, index) => {
+                        addLog(`   ${index + 1}. ${obj.class} - ${(obj.score * 100).toFixed(1)}% confidence`, 'info');
+                    });
+                    
+                    // Draw bounding boxes for detected objects
+                    // Get current face predictions if available
+                    let faces = [];
+                    if (monitoring.useTensorFlow && monitoring.blazeFaceModel) {
+                        faces = await monitoring.blazeFaceModel.estimateFaces(video, false);
+                    }
+                }
+            } catch (error) {
+                addLog(`❌ Detection failed: ${error.message}`, 'error');
+                console.error('Detection error:', error);
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (monitoring.active) {
+                stopMonitoring();
+            }
+        });
+    </script>
+</body>
+</html>

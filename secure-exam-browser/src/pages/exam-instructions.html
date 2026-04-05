@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Instructions - ExamEye Secure Browser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Exact styles from web project with anti-cheating enhancements */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Anti-cheating: Disable text selection */
+            -webkit-user-drag: none; /* Anti-cheating: Disable drag */
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f9ff 100%);
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .student-header {
+            background: rgba(249, 250, 251, 0.95);
+            color: #1f2937;
+            padding: 1.25rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #000000 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "👁️";
+            font-size: 1.5rem;
+            -webkit-text-fill-color: initial;
+        }
+
+        .student-background {
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+
+        .instructions-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            border: 1px solid rgba(229,231,235,0.6);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            backdrop-filter: blur(15px);
+        }
+
+        .instructions-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .instructions-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .exam-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .instructions-content {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #374151;
+            margin-bottom: 2rem;
+        }
+
+        .instructions-content h1,
+        .instructions-content h2,
+        .instructions-content h3 {
+            color: #1f2937;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .instructions-content h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .instructions-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .instructions-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .instructions-content ul,
+        .instructions-content ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .instructions-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions-content strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .acknowledgment-section {
+            background: #f0f9ff;
+            border: 2px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .acknowledgment-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .acknowledgment-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .acknowledgment-text {
+            font-size: 0.95rem;
+            color: #0c4a6e;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: #ffffff;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(31,41,55,0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(31,41,55,0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.9);
+            color: #374151;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-secondary:hover {
+            background: #ffffff;
+            border-color: #374151;
+            color: #1f2937;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .loading::before {
+            content: "⏳";
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .error::before {
+            content: "⚠️";
+        }
+
+        /* Anti-cheating styles */
+        ::selection {
+            background: transparent;
+        }
+
+        ::-moz-selection {
+            background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .instructions-container {
+                margin: 2rem auto;
+                padding: 2rem;
+            }
+
+            .exam-info {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="student-background">
+    <header class="student-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">ExamEye Secure Browser</div>
+                <div style="color: #6b7280; font-size: 0.9rem;">
+                    <span id="examTitle">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="loadingInstructions" class="loading">
+            Loading exam instructions...
+        </div>
+
+        <div id="instructionsContent" class="instructions-container" style="display: none;">
+            <!-- Instructions will be loaded here -->
+        </div>
+    </main>
+
+    <script>
+        let examData = null;
+        let authToken = localStorage.getItem('authToken');
+        let examPlatformUrl = 'http://localhost:3000';
+
+        // Initialize instructions page
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeInstructions();
+            setupAntiCheatingMeasures();
+        });
+
+        async function initializeInstructions() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const examId = urlParams.get('examId');
+                
+                if (!examId) {
+                    showError('No exam ID provided');
+                    setTimeout(() => {
+                        window.location.href = './student-dashboard.html';
+                    }, 3000);
+                    return;
+                }
+
+                if (!authToken) {
+                    showError('Authentication required');
+                    setTimeout(() => {
+                        window.location.href = './student-login.html';
+                    }, 3000);
+                    return;
+                }
+
+                console.log('🎯 Loading exam instructions for:', examId);
+                await fetchExamInstructions(examId);
+                
+            } catch (error) {
+                console.error('Instructions initialization error:', error);
+                showError('Failed to load exam instructions. Please try again.');
+            }
+        }
+
+        async function fetchExamInstructions(examId) {
+            try {
+                const response = await fetch(`${examPlatformUrl}/api/exams/${examId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    examData = data.exam;
+                    
+                    console.log('📚 Exam loaded:', examData.title);
+                    
+                    // Update page title
+                    document.getElementById('examTitle').textContent = examData.title;
+                    
+                    // Create instructions interface
+                    createInstructionsInterface();
+                    
+                } else {
+                    throw new Error('Failed to fetch exam');
+                }
+            } catch (error) {
+                console.error('Error fetching exam:', error);
+                throw error;
+            } finally {
+                document.getElementById('loadingInstructions').style.display = 'none';
+            }
+        }
+
+        function createInstructionsInterface() {
+            const instructions = examData.instructions || {};
+            
+            // If instructions are disabled, go directly to exam
+            if (!instructions.enabled) {
+                console.log('📝 Instructions disabled, proceeding to exam');
+                proceedToExam();
+                return;
+            }
+
+            const instructionsContainer = document.getElementById('instructionsContent');
+            
+            instructionsContainer.innerHTML = `
+                <div class="instructions-header">
+                    <h1 class="instructions-title">
+                        <span>📋</span>
+                        ${instructions.title || 'Exam Instructions'}
+                    </h1>
+                    <p style="color: #6b7280; font-size: 1rem; margin-top: 0.5rem;">
+                        Please read carefully before starting your exam
+                    </p>
+                </div>
+
+                <!-- Exam Information -->
+                <div class="exam-info">
+                    <div class="info-item">
+                        <span>📝</span>
+                        <span><strong>Exam:</strong> ${examData.title}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>⏱️</span>
+                        <span><strong>Duration:</strong> ${examData.duration} minutes</span>
+                    </div>
+                    <div class="info-item">
+                        <span>❓</span>
+                        <span><strong>Questions:</strong> ${examData.questions.length}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>🎯</span>
+                        <span><strong>Total Marks:</strong> ${examData.totalMarks}</span>
+                    </div>
+                </div>
+
+                <!-- Instructions Content -->
+                <div class="instructions-content">
+                    ${formatInstructionsContent(instructions.content)}
+                </div>
+
+                ${instructions.requireAcknowledgment ? `
+                    <!-- Acknowledgment Section -->
+                    <div class="acknowledgment-section">
+                        <h3 style="color: #0369a1; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>✋</span>
+                            Acknowledgment Required
+                        </h3>
+                        
+                        <div class="acknowledgment-checkbox">
+                            <input type="checkbox" id="acknowledgmentCheck" />
+                            <label for="acknowledgmentCheck" class="acknowledgment-text">
+                                ${instructions.acknowledgmentText || 'I have read and understood the exam instructions and agree to follow all exam rules and regulations.'}
+                            </label>
+                        </div>
+                        
+                        <div id="acknowledgmentError" class="error" style="display: none; margin-top: 1rem;">
+                            Please check the acknowledgment box to proceed with the exam.
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button onclick="goBack()" class="btn btn-secondary">
+                        <span>←</span>
+                        Back to Dashboard
+                    </button>
+                    
+                    <button onclick="startExam()" class="btn btn-primary" id="startExamBtn">
+                        <span>🚀</span>
+                        Start Exam
+                    </button>
+                </div>
+            `;
+
+            instructionsContainer.style.display = 'block';
+            
+            // Setup acknowledgment checkbox if required
+            if (instructions.requireAcknowledgment) {
+                setupAcknowledgmentCheck();
+            }
+        }
+
+        function formatInstructionsContent(content) {
+            if (!content) {
+                return '<p>No specific instructions provided for this exam.</p>';
+            }
+            
+            // Convert markdown-like formatting to HTML
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^/, '<p>')
+                .replace(/$/, '</p>')
+                .replace(/(\d+\.\s)/g, '<br>$1'); // Add line breaks before numbered lists
+        }
+
+        function setupAcknowledgmentCheck() {
+            const checkbox = document.getElementById('acknowledgmentCheck');
+            const startBtn = document.getElementById('startExamBtn');
+            const errorDiv = document.getElementById('acknowledgmentError');
+            
+            // Initially disable start button
+            startBtn.disabled = true;
+            
+            checkbox.addEventListener('change', () => {
+                startBtn.disabled = !checkbox.checked;
+                if (checkbox.checked) {
+                    errorDiv.style.display = 'none';
+                }
+            });
+        }
+
+        function startExam() {
+            const instructions = examData.instructions || {};
+            
+            // Check acknowledgment if required
+            if (instructions.requireAcknowledgment) {
+                const checkbox = document.getElementById('acknowledgmentCheck');
+                const errorDiv = document.getElementById('acknowledgmentError');
+                
+                if (!checkbox.checked) {
+                    errorDiv.style.display = 'flex';
+                    return;
+                }
+            }
+            
+            console.log('🚀 Starting exam:', examData._id);
+            proceedToExam();
+        }
+
+        function proceedToExam() {
+            // Navigate to exam interface
+            window.location.href = `./exam-interface.html?examId=${examData._id}`;
+        }
+
+        function goBack() {
+            window.location.href = './student-dashboard.html';
+        }
+
+        function showError(message) {
+            const loadingDiv = document.getElementById('loadingInstructions');
+            loadingDiv.innerHTML = `
+                <div class="error" style="justify-content: center;">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function setupAntiCheatingMeasures() {
+            // Disable right-click
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                console.warn('🚫 Right-click blocked');
+                return false;
+            });
+
+            // Disable text selection
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                console.warn('🚫 Text selection blocked');
+                return false;
+            });
+
+            // Disable drag and drop
+            document.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                console.warn('🚫 Drag operation blocked');
+                return false;
+            });
+
+            // Monitor keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                const blockedKeys = ['F12', 'F5', 'F11', 'PrintScreen'];
+                const blockedCombos = [
+                    { ctrl: true, key: 'u' },
+                    { ctrl: true, shift: true, key: 'i' },
+                    { ctrl: true, shift: true, key: 'j' },
+                    { ctrl: true, shift: true, key: 'c' },
+                    { ctrl: true, key: 'r' },
+                    { ctrl: true, key: 'c' },
+                    { ctrl: true, key: 'v' },
+                    { ctrl: true, key: 'x' },
+                    { ctrl: true, key: 'a' },
+                ];
+
+                if (blockedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    console.warn('🚫 Blocked key:', e.key);
+                    return false;
+                }
+
+                for (const combo of blockedCombos) {
+                    if (
+                        (combo.ctrl && e.ctrlKey) &&
+                        (combo.shift ? e.shiftKey : !e.shiftKey) &&
+                        e.key.toLowerCase() === combo.key.toLowerCase()
+                    ) {
+                        e.preventDefault();
+                        console.warn('🚫 Blocked combination:', combo);
+                        return false;
+                    }
+                }
+            });
+
+            // Monitor window focus
+            window.addEventListener('blur', () => {
+                console.warn('⚠️ Window focus lost');
+            });
+
+            // Monitor page visibility
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.warn('⚠️ Tab switch detected');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

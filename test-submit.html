@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Exam Submission</title>
+</head>
+<body>
+    <h1>Test Exam Submission</h1>
+    <button onclick="testSubmit()">Test Submit</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function testSubmit() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing...\n';
+
+            try {
+                // Test 1: Check if server is running
+                output.textContent += '\n1. Testing server connection...\n';
+                const pingResponse = await fetch('http://localhost:3000/api/exams');
+                output.textContent += `   Server status: ${pingResponse.status}\n`;
+
+                // Test 2: Try to submit with mock data
+                const examId = '507f1f77bcf86cd799439011'; // Mock exam ID
+                const authToken = localStorage.getItem('authToken');
+                
+                output.textContent += '\n2. Testing submission endpoint...\n';
+                output.textContent += `   Exam ID: ${examId}\n`;
+                output.textContent += `   Auth token: ${authToken ? 'Present' : 'Missing'}\n`;
+
+                const submitResponse = await fetch(`http://localhost:3000/api/exams/${examId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        answers: [0, 1, 2],
+                        flaggedQuestions: {}
+                    })
+                });
+
+                output.textContent += `   Response status: ${submitResponse.status}\n`;
+                
+                const data = await submitResponse.json();
+                output.textContent += `   Response: ${JSON.stringify(data, null, 2)}\n`;
+
+            } catch (error) {
+                output.textContent += `\n❌ Error: ${error.message}\n`;
+                output.textContent += `   Error type: ${error.name}\n`;
+                output.textContent += `   Stack: ${error.stack}\n`;
+            }
+        }
+    </script>
+</body>
+</html>
