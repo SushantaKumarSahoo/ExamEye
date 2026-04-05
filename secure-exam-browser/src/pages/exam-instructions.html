@@ -338,7 +338,8 @@
     <script>
         let examData = null;
         let authToken = localStorage.getItem('authToken');
-        let examPlatformUrl = 'http://localhost:3000';
+        // Get platform URL from config or use Vercel URL
+        let examPlatformUrl = window.electronAPI?.getConfig?.()?.platformUrl || 'https://exam-eye-sushantakumarsahoos-projects.vercel.app';
 
         // Initialize instructions page
         document.addEventListener('DOMContentLoaded', () => {

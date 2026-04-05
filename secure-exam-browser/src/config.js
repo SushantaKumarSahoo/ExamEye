@@ -1,11 +1,15 @@
 // Security configuration for ExamEye Secure Browser
 const config = {
+  // Platform URL - UPDATE THIS WITH YOUR VERCEL URL
+  platformUrl: process.env.EXAM_PLATFORM_URL || 'https://exam-eye-sushantakumarsahoos-projects.vercel.app',
+  
   // Security settings
   security: {
     // Allowed domains for exam platforms
     allowedDomains: [
       'localhost:3000',
       '127.0.0.1:3000',
+      'exam-eye-sushantakumarsahoos-projects.vercel.app', // Your Vercel domain
       // CDN domains for AI libraries
       'unpkg.com',
       'cdn.jsdelivr.net',
