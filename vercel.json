@@ -5,16 +5,5 @@
             "src": "package.json",
             "use": "@vercel/next"
         }
-    ],
-    "env": {
-        "MONGODB_URI": "@mongodb_uri",
-        "JWT_SECRET": "@jwt_secret",
-        "EMAIL_USER": "@email_user",
-        "EMAIL_PASS": "@email_pass",
-        "EMAIL_HOST": "@email_host",
-        "EMAIL_PORT": "@email_port",
-        "RAZORPAY_KEY_ID": "@razorpay_key_id",
-        "RAZORPAY_KEY_SECRET": "@razorpay_key_secret",
-        "NEXT_PUBLIC_APP_URL": "@next_public_app_url"
-    }
+    ]
 }
