@@ -1153,10 +1153,14 @@
                 // Load TensorFlow.js BlazeFace model for AI face detection
                 console.log('🤖 Loading AI face detection model (BlazeFace)...');
                 try {
-                    mediaMonitoring.blazeFaceModel = await blazeface.load();
+                    // Load from local model files
+                    console.log('📁 Loading BlazeFace model from local files...');
+                    mediaMonitoring.blazeFaceModel = await blazeface.load({
+                        modelUrl: '../libs/blazeface-model/model.json'
+                    });
                     mediaMonitoring.aiModelLoaded = true;
                     mediaMonitoring.faceDetectionEnabled = true;
-                    console.log('✅ AI face detection model loaded successfully');
+                    console.log('✅ AI face detection model loaded successfully from local files');
                 } catch (modelError) {
                     console.error('❌ Failed to load AI model:', modelError);
                     console.warn('⚠️ Falling back to basic face detection');

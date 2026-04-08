@@ -159,12 +159,14 @@ export default function LaunchExam() {
             }}>
               <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>📥 Don't have the Secure Browser?</p>
               <a
-                href="/download-browser"
+                href="https://github.com/SushantaKumarSahoo/ExamEye/releases/download/First/ExamEye.Secure.Browser.Setup.1.0.0.exe"
                 style={{
                   color: '#dc2626',
                   fontWeight: 'bold',
                   textDecoration: 'none'
                 }}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Download it here →
               </a>

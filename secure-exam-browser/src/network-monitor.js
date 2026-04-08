@@ -100,6 +100,7 @@ class NetworkMonitor {
       });
       
       if (!isAllowed) {
+        console.log(`❌ Blocked: ${url.hostname} not in allowed list:`, this.allowedDomains);
         return { 
           allowed: false, 
           reason: `Domain ${url.hostname} not in allowed list` 

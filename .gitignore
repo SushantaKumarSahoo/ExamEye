@@ -46,3 +46,4 @@ public/downloads/*.AppImage
 .swc
 .vscode
 .kiro
+secure-exam-browser/build-output

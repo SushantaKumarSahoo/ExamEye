@@ -2,7 +2,7 @@
   "name": "exameye-secure-browser",
   "version": "1.0.0",
   "description": "ExamEye Secure Examination Browser with Advanced AI Security Features",
-  "main": "src/main.js",
+  "main": "src/main-deep-link.js",
   "scripts": {
     "start": "electron .",
     "dev": "set NODE_ENV=development && electron . --dev",
@@ -52,26 +52,25 @@
       "schemes": ["exameye"]
     },
     "directories": {
-      "output": "dist",
+      "output": "build-output",
       "buildResources": "assets"
     },
     "files": [
       "src/**/*",
-      "assets/**/*",
       "package.json"
     ],
     "win": {
       "target": ["nsis"],
-      "icon": "assets/icon.ico"
+      "icon": null
     },
     "mac": {
       "target": ["dmg"],
-      "icon": "assets/icon.icns",
+      "icon": null,
       "category": "public.app-category.education"
     },
     "linux": {
       "target": ["AppImage", "deb"],
-      "icon": "assets/icon.png",
+      "icon": null,
       "category": "Education"
     },
     "nsis": {
@@ -79,7 +78,9 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "ExamEye Secure Browser"
+      "shortcutName": "ExamEye Secure Browser",
+      "perMachine": false,
+      "allowElevation": true
     }
   }
 }

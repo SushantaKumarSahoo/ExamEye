@@ -512,6 +512,21 @@
             setupAntiCheatingMeasures();
             setupFormHandling();
             testBackendConnection();
+            
+            // Listen for auto-login from deep link
+            if (window.electronAPI && window.electronAPI.receive) {
+                window.electronAPI.receive('auto-login', (credentials) => {
+                    console.log('Auto-login triggered with credentials');
+                    if (credentials.username && credentials.password) {
+                        document.getElementById('username').value = credentials.username;
+                        document.getElementById('password').value = credentials.password;
+                        // Auto-submit the form
+                        setTimeout(() => {
+                            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                        }, 500);
+                    }
+                });
+            }
         });
 
         async function testBackendConnection() {
@@ -1123,13 +1138,8 @@
 
         async function openSystemCheck() {
             try {
-                if (window.secureExamAPI && window.secureExamAPI.navigateToSystemCheck) {
-                    const result = await window.secureExamAPI.navigateToSystemCheck();
-                    console.log('Navigating to system check:', result);
-                } else {
-                    // Fallback for web browser testing
-                    window.location.href = '/system-check';
-                }
+                // Navigate to system check page
+                window.location.href = './system-check.html';
             } catch (error) {
                 console.error('Failed to navigate to system check:', error);
                 showError('Failed to open system check. Please try again.');

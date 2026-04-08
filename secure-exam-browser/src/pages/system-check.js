@@ -571,20 +571,8 @@ class SystemCheck {
     
     console.log('System check results:', results);
     
-    try {
-      if (window.secureExamAPI && window.secureExamAPI.systemCheckComplete) {
-        await window.secureExamAPI.systemCheckComplete(results);
-        console.log('✅ Results sent successfully');
-      } else {
-        console.error('❌ secureExamAPI not available');
-        // Fallback: navigate back manually
-        window.location.href = './pages/student-login.html';
-      }
-    } catch (error) {
-      console.error('Failed to send system check results:', error);
-      // Fallback: navigate back manually
-      window.location.href = './pages/student-login.html';
-    }
+    // Navigate back to login
+    window.location.href = './student-login.html';
   }
 
   cleanup() {
@@ -627,18 +615,7 @@ async function goBackToLogin() {
   }
   
   // Navigate back to login
-  try {
-    if (typeof ipcRenderer !== 'undefined') {
-      // In Electron, load the login page
-      window.location.href = './pages/student-login.html';
-    } else {
-      // In web browser
-      window.location.href = '/';
-    }
-  } catch (error) {
-    console.error('Failed to navigate back:', error);
-    window.history.back();
-  }
+  window.location.href = './student-login.html';
 }
 
 // Initialize system check when page loads

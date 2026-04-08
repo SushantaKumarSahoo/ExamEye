@@ -462,9 +462,13 @@
                 if (typeof tf !== 'undefined' && typeof blazeface !== 'undefined') {
                     addLog('🤖 TensorFlow.js detected, loading BlazeFace model...', 'info');
                     try {
-                        monitoring.blazeFaceModel = await blazeface.load();
+                        // Load from local model files
+                        addLog('📁 Loading BlazeFace model from local files...', 'info');
+                        monitoring.blazeFaceModel = await blazeface.load({
+                            modelUrl: '../libs/blazeface-model/model.json'
+                        });
                         monitoring.useTensorFlow = true;
-                        addLog('✅ BlazeFace AI model loaded successfully!', 'success');
+                        addLog('✅ BlazeFace AI model loaded successfully from local files!', 'success');
                     } catch (modelError) {
                         addLog(`⚠️ BlazeFace model failed: ${modelError.message}`, 'warning');
                         addLog(`⚠️ Error details: ${modelError.stack}`, 'error');

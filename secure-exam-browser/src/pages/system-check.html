@@ -1,826 +1,461 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Check - ExamEye</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Check - ExamEye</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1f2937;
+    }
 
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: white;
+    }
 
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 1rem;
-        }
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
 
-        .content {
-            padding: 2rem;
-        }
+    .progress-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-        .check-item {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
 
-        .check-item.checking {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
+    .step {
+      flex: 1;
+      text-align: center;
+    }
 
-        .check-item.success {
-            border-color: #10b981;
-            background: #ecfdf5;
-        }
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
 
-        .check-item.error {
-            border-color: #ef4444;
-            background: #fef2f2;
-        }
+    .step-circle.active {
+      background: #10b981;
+    }
 
-        .check-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
+    .step-label {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      color: #6b7280;
+    }
 
-        .check-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #1f2937;
-        }
+    .progress-bar {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+    }
 
-        .check-icon {
-            font-size: 1.5rem;
-        }
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      width: 0%;
+      transition: width 0.3s;
+    }
 
-        .check-status {
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-        }
+    .results-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-        .status-pending {
-            background: #e2e8f0;
-            color: #64748b;
-        }
+    .results-card h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
 
-        .status-checking {
-            background: #dbeafe;
-            color: #2563eb;
-        }
+    .check-item {
+      padding: 1.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: all 0.3s;
+    }
 
-        .status-success {
-            background: #d1fae5;
-            color: #059669;
-        }
+    .check-item.success {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
 
-        .status-error {
-            background: #fee2e2;
-            color: #dc2626;
-        }
+    .check-item.warning {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
 
-        .check-description {
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
+    .check-item.error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
 
-        .check-details {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #4b5563;
-        }
+    .check-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.5rem;
+    }
 
-        .video-preview {
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-            background: #000;
-            border-radius: 8px;
-            margin-top: 1rem;
-            object-fit: cover;
-        }
+    .check-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 1rem;
-        }
+    .check-icon {
+      font-size: 1.5rem;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+    .check-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
 
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
+    .check-message {
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+    .check-details {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
 
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #475569;
-        }
+    .retry-btn {
+      padding: 0.5rem 1rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
 
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
+    .retry-btn:hover {
+      background: #2563eb;
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 1.5rem 0;
-        }
+    .camera-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.3s ease;
-        }
+    .camera-preview h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
 
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #e2e8f0;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
+    #cameraVideo {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 8px;
+      background: #000;
+      display: block;
+      margin: 0 auto;
+    }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+    .camera-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: start;
-            gap: 0.75rem;
-        }
+    .microphone-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-        .alert-warning {
-            background: #fef3c7;
-            border: 1px solid #fbbf24;
-            color: #92400e;
-        }
+    .microphone-preview h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
 
-        .alert-info {
-            background: #dbeafe;
-            border: 1px solid #60a5fa;
-            color: #1e40af;
-        }
-    </style>
+    .audio-visualizer {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      height: 100px;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .audio-bar {
+      width: 20px;
+      height: 10px;
+      background: linear-gradient(to top, #10b981, #34d399);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.1s ease;
+    }
+
+    .audio-bar.active {
+      background: linear-gradient(to top, #059669, #10b981);
+    }
+
+    .audio-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 2px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .btn-disabled {
+      background: #d1d5db;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .help-card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .help-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .help-card ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .help-card li {
+      margin-bottom: 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .speed-bars {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .speed-bar {
+      margin-top: 0.5rem;
+    }
+
+    .speed-label {
+      font-size: 0.75rem;
+      color: #374151;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .speed-progress {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .speed-fill {
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    .inline-preview {
+      margin-top: 1rem;
+    }
+
+    .inline-audio-visualizer {
+      margin-top: 1rem;
+    }
+
+    .inline-audio-visualizer .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      height: 80px;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0fdf4 0%, #f9fafb 100%);
+      border-radius: 8px;
+      border: 2px solid #d1fae5;
+    }
+
+    .inline-audio-visualizer .audio-bar {
+      width: 20px;
+      min-height: 8px;
+      background: linear-gradient(to top, #10b981, #34d399);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.1s ease, background 0.2s ease;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .inline-audio-visualizer .audio-bar.active {
+      background: linear-gradient(to top, #059669, #10b981);
+      box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔍 System Check</h1>
-            <p id="examTitle">Preparing your exam environment...</p>
-        </div>
-
-        <div class="content">
-            <div class="alert alert-info">
-                <span style="font-size: 1.5rem;">ℹ️</span>
-                <div>
-                    <strong>Important:</strong> Please ensure you're in a quiet, well-lit environment. 
-                    Grant all permissions for the best exam experience.
-                </div>
-            </div>
-
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
-            </div>
-
-            <!-- Camera Check -->
-            <div class="check-item" id="cameraCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">📹</span>
-                        <span>Camera Access</span>
-                    </div>
-                    <span class="check-status status-pending" id="cameraStatus">Pending</span>
-                </div>
-                <div class="check-description">
-                    We need access to your camera for identity verification and proctoring.
-                </div>
-                <div id="cameraDetails" style="display: none;">
-                    <video id="cameraPreview" class="video-preview" autoplay muted></video>
-                    <div class="check-details" id="cameraInfo"></div>
-                </div>
-            </div>
-
-            <!-- Microphone Check -->
-            <div class="check-item" id="micCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">🎤</span>
-                        <span>Microphone Access</span>
-                    </div>
-                    <span class="check-status status-pending" id="micStatus">Pending</span>
-                </div>
-                <div class="check-description">
-                    Microphone access is required for audio monitoring during the exam.
-                </div>
-                <div id="micDetails" style="display: none;" class="check-details"></div>
-            </div>
-
-            <!-- Network Check -->
-            <div class="check-item" id="networkCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">🌐</span>
-                        <span>Network Connection</span>
-                    </div>
-                    <span class="check-status status-pending" id="networkStatus">Pending</span>
-                </div>
-                <div class="check-description">
-                    Checking your internet connection speed and stability.
-                </div>
-                <div id="networkDetails" style="display: none;" class="check-details"></div>
-            </div>
-
-            <!-- Browser Check -->
-            <div class="check-item" id="browserCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">🖥️</span>
-                        <span>Browser Compatibility</span>
-                    </div>
-                    <span class="check-status status-pending" id="browserStatus">Pending</span>
-                </div>
-                <div class="check-description">
-                    Verifying browser capabilities and security features.
-                </div>
-                <div id="browserDetails" style="display: none;" class="check-details"></div>
-            </div>
-
-            <!-- Screen Check -->
-            <div class="check-item" id="screenCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">🖼️</span>
-                        <span>Screen Resolution</span>
-                    </div>
-                    <span class="check-status status-pending" id="screenStatus">Pending</span>
-                </div>
-                <div class="check-description">
-                    Checking screen size and resolution for optimal exam display.
-                </div>
-                <div id="screenDetails" style="display: none;" class="check-details"></div>
-            </div>
-
-            <!-- WebRTC Connection Test -->
-            <div class="check-item" id="webrtcCheck">
-                <div class="check-header">
-                    <div class="check-title">
-                        <span class="check-icon">🎥</span>
-                        <span>WebRTC Connection Test</span>
-                    </div>
-                    <span class="check-status status-pending" id="webrtcStatus">Not Started</span>
-                </div>
-                <div class="check-description">
-                    Test real-time video streaming connection with the exam server.
-                </div>
-                <div id="webrtcDetails" style="display: none;" class="check-details"></div>
-                <button id="testWebRTCBtn" class="btn btn-secondary" style="margin-top: 1rem;" onclick="testWebRTCConnection()">
-                    Test WebRTC Connection
-                </button>
-            </div>
-
-            <div id="errorMessage" style="display: none;" class="alert alert-warning">
-                <span style="font-size: 1.5rem;">⚠️</span>
-                <div id="errorText"></div>
-            </div>
-
-            <button id="startCheckBtn" class="btn btn-primary" onclick="startSystemCheck()">
-                Start System Check
-            </button>
-
-            <button id="proceedBtn" class="btn btn-primary" style="display: none;" onclick="proceedToExam()" disabled>
-                Proceed to Exam
-            </button>
-
-            <button id="retryBtn" class="btn btn-secondary" style="display: none;" onclick="location.reload()">
-                Retry System Check
-            </button>
-        </div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🔍 System Check</h1>
+      <p>Verifying your system is ready for the exam</p>
     </div>
 
-    <script>
-        let examId = null;
-        let authToken = null;
-        let examPlatformUrl = 'https://exameye-peach.vercel.app';
-        let mediaStream = null;
-        let checksCompleted = 0;
-        let totalChecks = 5;
-        let allChecksPassed = true;
+    <!-- Progress Card -->
+    <div class="progress-card">
+      <div class="progress-steps" id="progressSteps"></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
 
-        // Get exam ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        examId = urlParams.get('examId');
-        authToken = localStorage.getItem('authToken');
+    <!-- Results Card -->
+    <div class="results-card">
+      <h2>System Check Results</h2>
+      <div id="checkResults"></div>
+    </div>
 
-        if (!examId || !authToken) {
-            alert('Invalid exam session');
-            window.location.href = './student-dashboard.html';
-        }
+    <!-- Action Buttons -->
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goBackToLogin()">
+        ← Back to Login
+      </button>
+      <button class="btn btn-secondary" onclick="runChecksAgain()">
+        🔄 Run Checks Again
+      </button>
+      <button class="btn btn-disabled" id="proceedBtn" disabled>
+        ⏳ Checking...
+      </button>
+    </div>
 
-        // Fetch exam details
-        async function fetchExamDetails() {
-            try {
-                const response = await fetch(`${examPlatformUrl}/api/exams/${examId}`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('examTitle').textContent = `System check for: ${data.exam.title}`;
-                }
-            } catch (error) {
-                console.error('Error fetching exam:', error);
-            }
-        }
+    <!-- Help Card -->
+    <div class="help-card">
+      <h3>💡 Troubleshooting Tips</h3>
+      <ul>
+        <li><strong>Camera/Microphone denied:</strong> Grant permissions when prompted</li>
+        <li><strong>Slow network:</strong> Close other applications using internet</li>
+        <li><strong>Browser not supported:</strong> Make sure you're using the ExamEye Secure Browser</li>
+        <li><strong>Fullscreen issues:</strong> Press F11 key or use fullscreen button</li>
+      </ul>
+    </div>
+  </div>
 
-        fetchExamDetails();
-
-        async function startSystemCheck() {
-            document.getElementById('startCheckBtn').style.display = 'none';
-            checksCompleted = 0;
-            allChecksPassed = true;
-            
-            await checkCamera();
-            await checkMicrophone();
-            await checkNetwork();
-            await checkBrowser();
-            await checkScreen();
-            
-            if (allChecksPassed) {
-                document.getElementById('proceedBtn').style.display = 'block';
-                document.getElementById('proceedBtn').disabled = false;
-            } else {
-                document.getElementById('retryBtn').style.display = 'block';
-                showError('Some checks failed. Please resolve the issues and retry.');
-            }
-        }
-
-        async function checkCamera() {
-            updateCheckStatus('cameraCheck', 'cameraStatus', 'checking', 'Checking...');
-            
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
-                });
-                
-                const videoTrack = mediaStream.getVideoTracks()[0];
-                const settings = videoTrack.getSettings();
-                
-                // Show video preview
-                const videoElement = document.getElementById('cameraPreview');
-                videoElement.srcObject = mediaStream;
-                document.getElementById('cameraDetails').style.display = 'block';
-                
-                document.getElementById('cameraInfo').innerHTML = `
-                    ✅ Camera detected: ${videoTrack.label}<br>
-                    📐 Resolution: ${settings.width}x${settings.height}<br>
-                    🎥 Frame rate: ${settings.frameRate} fps
-                `;
-                
-                updateCheckStatus('cameraCheck', 'cameraStatus', 'success', 'Connected');
-                updateProgress();
-            } catch (error) {
-                console.error('Camera error:', error);
-                updateCheckStatus('cameraCheck', 'cameraStatus', 'error', 'Failed');
-                showError('Camera access denied. Please allow camera access and retry.');
-                allChecksPassed = false;
-                updateProgress();
-            }
-        }
-
-        async function checkMicrophone() {
-            updateCheckStatus('micCheck', 'micStatus', 'checking', 'Checking...');
-            
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const audioTrack = stream.getAudioTracks()[0];
-                
-                document.getElementById('micDetails').style.display = 'block';
-                document.getElementById('micDetails').innerHTML = `
-                    ✅ Microphone detected: ${audioTrack.label}<br>
-                    🔊 Audio monitoring enabled
-                `;
-                
-                // Stop the audio track (we'll request it again during exam)
-                audioTrack.stop();
-                
-                updateCheckStatus('micCheck', 'micStatus', 'success', 'Connected');
-                updateProgress();
-            } catch (error) {
-                console.error('Microphone error:', error);
-                updateCheckStatus('micCheck', 'micStatus', 'error', 'Failed');
-                showError('Microphone access denied. Please allow microphone access and retry.');
-                allChecksPassed = false;
-                updateProgress();
-            }
-        }
-
-        async function checkNetwork() {
-            updateCheckStatus('networkCheck', 'networkStatus', 'checking', 'Testing...');
-            
-            try {
-                const startTime = Date.now();
-                const response = await fetch(`${examPlatformUrl}/api/exams/${examId}`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                const endTime = Date.now();
-                const latency = endTime - startTime;
-                
-                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                const connectionType = connection ? connection.effectiveType : 'unknown';
-                const downlink = connection ? connection.downlink : 'unknown';
-                
-                document.getElementById('networkDetails').style.display = 'block';
-                document.getElementById('networkDetails').innerHTML = `
-                    ✅ Connection: ${connectionType}<br>
-                    ⚡ Latency: ${latency}ms<br>
-                    📶 Downlink: ${downlink} Mbps<br>
-                    ${latency < 200 ? '✅ Connection is stable' : '⚠️ Connection may be slow'}
-                `;
-                
-                if (latency > 500) {
-                    updateCheckStatus('networkCheck', 'networkStatus', 'error', 'Slow');
-                    showError('Network connection is slow. This may affect your exam experience.');
-                    allChecksPassed = false;
-                } else {
-                    updateCheckStatus('networkCheck', 'networkStatus', 'success', 'Stable');
-                }
-                updateProgress();
-            } catch (error) {
-                console.error('Network error:', error);
-                updateCheckStatus('networkCheck', 'networkStatus', 'error', 'Failed');
-                showError('Network connection failed. Please check your internet and retry.');
-                allChecksPassed = false;
-                updateProgress();
-            }
-        }
-
-        async function checkBrowser() {
-            updateCheckStatus('browserCheck', 'browserStatus', 'checking', 'Checking...');
-            
-            const userAgent = navigator.userAgent;
-            const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
-            const isEdge = /Edg/.test(userAgent);
-            const isFirefox = /Firefox/.test(userAgent);
-            
-            const hasWebRTC = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-            const hasLocalStorage = typeof(Storage) !== 'undefined';
-            
-            document.getElementById('browserDetails').style.display = 'block';
-            document.getElementById('browserDetails').innerHTML = `
-                🌐 Browser: ${isChrome ? 'Chrome' : isEdge ? 'Edge' : isFirefox ? 'Firefox' : 'Other'}<br>
-                ✅ WebRTC: ${hasWebRTC ? 'Supported' : 'Not supported'}<br>
-                ✅ Local Storage: ${hasLocalStorage ? 'Available' : 'Not available'}<br>
-                📱 Platform: ${navigator.platform}
-            `;
-            
-            if (hasWebRTC && hasLocalStorage) {
-                updateCheckStatus('browserCheck', 'browserStatus', 'success', 'Compatible');
-            } else {
-                updateCheckStatus('browserCheck', 'browserStatus', 'error', 'Incompatible');
-                showError('Browser is not fully compatible. Please use Chrome, Edge, or Firefox.');
-                allChecksPassed = false;
-            }
-            updateProgress();
-        }
-
-        async function checkScreen() {
-            updateCheckStatus('screenCheck', 'screenStatus', 'checking', 'Checking...');
-            
-            const width = window.screen.width;
-            const height = window.screen.height;
-            const availWidth = window.screen.availWidth;
-            const availHeight = window.screen.availHeight;
-            const colorDepth = window.screen.colorDepth;
-            
-            document.getElementById('screenDetails').style.display = 'block';
-            document.getElementById('screenDetails').innerHTML = `
-                📐 Resolution: ${width}x${height}<br>
-                🖥️ Available: ${availWidth}x${availHeight}<br>
-                🎨 Color Depth: ${colorDepth}-bit<br>
-                ${width >= 1024 ? '✅ Screen size is adequate' : '⚠️ Screen size may be too small'}
-            `;
-            
-            if (width < 1024 || height < 768) {
-                updateCheckStatus('screenCheck', 'screenStatus', 'error', 'Too Small');
-                showError('Screen resolution is too small. Minimum 1024x768 recommended.');
-                allChecksPassed = false;
-            } else {
-                updateCheckStatus('screenCheck', 'screenStatus', 'success', 'Adequate');
-            }
-            updateProgress();
-        }
-
-        function updateCheckStatus(checkId, statusId, state, text) {
-            const checkItem = document.getElementById(checkId);
-            const statusElement = document.getElementById(statusId);
-            
-            checkItem.className = 'check-item ' + state;
-            statusElement.className = 'check-status status-' + state;
-            statusElement.textContent = text;
-            
-            if (state === 'checking') {
-                statusElement.innerHTML = '<span class="spinner"></span> ' + text;
-            }
-        }
-
-        function updateProgress() {
-            checksCompleted++;
-            const progress = (checksCompleted / totalChecks) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-        }
-
-        function showError(message) {
-            document.getElementById('errorMessage').style.display = 'flex';
-            document.getElementById('errorText').textContent = message;
-        }
-
-        function proceedToExam() {
-            // Store that system check passed
-            localStorage.setItem('systemCheckPassed', 'true');
-            localStorage.setItem('systemCheckTime', Date.now());
-            
-            // Navigate to exam instructions
-            window.location.href = `./exam-instructions.html?examId=${examId}`;
-        }
-
-        // WebRTC Connection Test
-        let webrtcPeerConnection = null;
-        let webrtcPollingInterval = null;
-        let webrtcLocalStream = null;
-
-        async function testWebRTCConnection() {
-            const btn = document.getElementById('testWebRTCBtn');
-            btn.disabled = true;
-            btn.textContent = 'Testing...';
-            
-            updateCheckStatus('webrtcCheck', 'webrtcStatus', 'checking', 'Testing...');
-            document.getElementById('webrtcDetails').style.display = 'block';
-            document.getElementById('webrtcDetails').innerHTML = '🔄 Initializing WebRTC connection...';
-            
-            try {
-                // Step 1: Get user media
-                addWebRTCLog('📹 Requesting camera and microphone access...');
-                webrtcLocalStream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                });
-                addWebRTCLog('✅ Media access granted');
-                
-                // Step 2: Create peer connection
-                addWebRTCLog('🔗 Creating peer connection...');
-                const configuration = {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                };
-                
-                webrtcPeerConnection = new RTCPeerConnection(configuration);
-                
-                // Add tracks
-                webrtcLocalStream.getTracks().forEach(track => {
-                    webrtcPeerConnection.addTrack(track, webrtcLocalStream);
-                });
-                addWebRTCLog('✅ Media tracks added to peer connection');
-                
-                // Set up event handlers
-                webrtcPeerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        addWebRTCLog('🧊 ICE candidate generated');
-                        sendWebRTCSignal('ice-candidate', event.candidate);
-                    }
-                };
-                
-                webrtcPeerConnection.onconnectionstatechange = () => {
-                    const state = webrtcPeerConnection.connectionState;
-                    addWebRTCLog(`📊 Connection state: ${state}`);
-                    
-                    if (state === 'connected') {
-                        updateCheckStatus('webrtcCheck', 'webrtcStatus', 'success', 'Connected');
-                        addWebRTCLog('✅ WebRTC connection established successfully!');
-                        btn.textContent = 'Test Passed ✓';
-                        btn.style.background = '#10b981';
-                        btn.style.color = 'white';
-                        
-                        // Clean up after 3 seconds
-                        setTimeout(cleanupWebRTC, 3000);
-                    } else if (state === 'failed' || state === 'disconnected') {
-                        updateCheckStatus('webrtcCheck', 'webrtcStatus', 'error', 'Failed');
-                        addWebRTCLog('❌ Connection failed');
-                        btn.disabled = false;
-                        btn.textContent = 'Retry Test';
-                    }
-                };
-                
-                // Step 3: Create and send offer
-                addWebRTCLog('📤 Creating offer...');
-                const offer = await webrtcPeerConnection.createOffer();
-                await webrtcPeerConnection.setLocalDescription(offer);
-                addWebRTCLog('✅ Offer created');
-                
-                // Step 4: Send offer to server
-                addWebRTCLog('📡 Sending offer to server...');
-                const testId = `electron-test-${Date.now()}`;
-                await sendWebRTCSignal('offer', offer, testId);
-                addWebRTCLog('✅ Offer sent to server');
-                
-                // Step 5: Poll for answer
-                addWebRTCLog('⏳ Waiting for server response...');
-                webrtcPollingInterval = setInterval(() => pollWebRTCSignals(testId), 1000);
-                
-                // Timeout after 10 seconds
-                setTimeout(() => {
-                    if (webrtcPeerConnection && webrtcPeerConnection.connectionState !== 'connected') {
-                        addWebRTCLog('⚠️ Connection timeout - but signaling works!');
-                        updateCheckStatus('webrtcCheck', 'webrtcStatus', 'success', 'Signaling OK');
-                        addWebRTCLog('✅ WebRTC signaling server is functional');
-                        btn.textContent = 'Signaling OK ✓';
-                        btn.style.background = '#f59e0b';
-                        btn.style.color = 'white';
-                        cleanupWebRTC();
-                    }
-                }, 10000);
-                
-            } catch (error) {
-                console.error('WebRTC test error:', error);
-                updateCheckStatus('webrtcCheck', 'webrtcStatus', 'error', 'Failed');
-                addWebRTCLog(`❌ Error: ${error.message}`);
-                btn.disabled = false;
-                btn.textContent = 'Retry Test';
-            }
-        }
-
-        async function sendWebRTCSignal(type, signal, testId = null) {
-            try {
-                const studentId = localStorage.getItem('studentId') || 'electron-test-student';
-                const response = await fetch(`${examPlatformUrl}/api/webrtc/signal`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type,
-                        from: `student-${studentId}`,
-                        to: `admin-${examId || testId}`,
-                        signal,
-                        examId: examId || testId
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Server responded with ${response.status}`);
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Signal send error:', error);
-                throw error;
-            }
-        }
-
-        async function pollWebRTCSignals(testId) {
-            try {
-                const studentId = localStorage.getItem('studentId') || 'electron-test-student';
-                const response = await fetch(
-                    `${examPlatformUrl}/api/webrtc/signal?userId=student-${studentId}&examId=${examId || testId}`
-                );
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    if (data.signals && data.signals.length > 0) {
-                        for (const { type, signal } of data.signals) {
-                            addWebRTCLog(`📥 Received ${type} from server`);
-                            
-                            if (type === 'answer' && webrtcPeerConnection) {
-                                await webrtcPeerConnection.setRemoteDescription(
-                                    new RTCSessionDescription(signal)
-                                );
-                                addWebRTCLog('✅ Answer processed');
-                            } else if (type === 'ice-candidate' && webrtcPeerConnection) {
-                                await webrtcPeerConnection.addIceCandidate(
-                                    new RTCIceCandidate(signal)
-                                );
-                                addWebRTCLog('✅ ICE candidate added');
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Polling error:', error);
-            }
-        }
-
-        function addWebRTCLog(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            const currentLog = document.getElementById('webrtcDetails').innerHTML;
-            document.getElementById('webrtcDetails').innerHTML = 
-                currentLog + `<br>[${timestamp}] ${message}`;
-            
-            // Auto-scroll to bottom
-            const details = document.getElementById('webrtcDetails');
-            details.scrollTop = details.scrollHeight;
-        }
-
-        function cleanupWebRTC() {
-            if (webrtcPollingInterval) {
-                clearInterval(webrtcPollingInterval);
-                webrtcPollingInterval = null;
-            }
-            
-            if (webrtcLocalStream) {
-                webrtcLocalStream.getTracks().forEach(track => track.stop());
-                webrtcLocalStream = null;
-            }
-            
-            if (webrtcPeerConnection) {
-                webrtcPeerConnection.close();
-                webrtcPeerConnection = null;
-            }
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-            }
-            cleanupWebRTC();
-        });
-    </script>
+  <script src="system-check.js"></script>
 </body>
 </html>

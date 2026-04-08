@@ -17,6 +17,9 @@ const config = {
       'tfhub.dev', // TensorFlow Hub
       'raw.githubusercontent.com', // Face-API.js models
       'github.com', // Face-API.js models
+      // Google Fonts for UI
+      'fonts.googleapis.com',
+      'fonts.gstatic.com',
       // Add your exam platform domains here
       // 'your-exam-platform.com',
       // 'cdn.your-platform.com'

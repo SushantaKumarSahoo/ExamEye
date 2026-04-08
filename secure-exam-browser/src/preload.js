@@ -4,7 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   // Send messages to main process
   send: (channel, data) => {
-    const validChannels = ['page-hidden', 'page-visible', 'window-blur', 'window-focus', 'exam-started', 'exam-ended'];
+    const validChannels = ['page-hidden', 'page-visible', 'window-blur', 'window-focus', 'exam-started', 'exam-ended', 'close-browser'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
@@ -12,9 +12,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Receive messages from main process
   on: (channel, callback) => {
-    const validChannels = ['focus-lost', 'focus-regained', 'terminate-exam', 'close-attempt'];
+    const validChannels = ['focus-lost', 'focus-regained', 'terminate-exam', 'close-attempt', 'auto-login'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (event, ...args) => callback(...args));
+    }
+  },
+  
+  // Receive messages from main process (one-time listener)
+  receive: (channel, callback) => {
+    const validChannels = ['focus-lost', 'focus-regained', 'terminate-exam', 'close-attempt', 'auto-login'];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.once(channel, (event, ...args) => callback(...args));
     }
   },
   
